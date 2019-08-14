@@ -1,16 +1,17 @@
-'''
+"""
 train.py: contains all training and prediction backend functions for spectral net
-'''
+"""
+import numpy as np
 from keras import backend as K
+
 from .util import make_batches
 
-import numpy as np
 
 def check_inputs(x_unlabeled, x_labeled, y_labeled, y_true):
-    '''
+    """
     Checks the data inputs to both train_step and predict and creates
     empty arrays if necessary
-    '''
+    """
     if x_unlabeled is None:
         if x_labeled is None:
             raise Exception("No data, labeled or unlabeled, passed to check_inputs!")
@@ -25,10 +26,11 @@ def check_inputs(x_unlabeled, x_labeled, y_labeled, y_true):
         raise Exception("x_labeled and y_labeled must both be None or have a value")
     return x_unlabeled, x_labeled, y_labeled
 
+
 def train_step(return_var, updates, x_unlabeled, inputs, y_true,
-        batch_sizes, x_labeled=None, y_labeled=None,
-        batches_per_epoch=100):
-    '''
+               batch_sizes, x_labeled=None, y_labeled=None,
+               batches_per_epoch=100):
+    """
     Performs one training step. Evaluates the tensors in return_var and
     updates, then returns the values of the tensors in return_var.
 
@@ -50,7 +52,7 @@ def train_step(return_var, updates, x_unlabeled, inputs, y_true,
     *note: the term epoch is used loosely here, it does not necessarily
            refer to one iteration over the entire dataset. instead, it
            is just batches_per_epoch parameter updates.
-    '''
+    """
     x_unlabeled, x_labeled, y_labeled = check_inputs(x_unlabeled, x_labeled, y_labeled, y_true)
 
     # combine data
@@ -68,7 +70,8 @@ def train_step(return_var, updates, x_unlabeled, inputs, y_true,
         for input_type, input_placeholder in inputs.items():
             if input_type == 'Labeled':
                 if len(x_labeled):
-                    batch_ids = np.random.choice(len(x_labeled), size=min(batch_sizes[input_type], len(x_labeled)), replace=False)
+                    batch_ids = np.random.choice(len(x_labeled), size=min(batch_sizes[input_type], len(x_labeled)),
+                                                 replace=False)
                     feed_dict[input_placeholder] = x_labeled[batch_ids]
                     feed_dict[y_true] = y_labeled[batch_ids]
                 else:
@@ -93,9 +96,10 @@ def train_step(return_var, updates, x_unlabeled, inputs, y_true,
 
     return return_vars_
 
+
 def predict(predict_var, x_unlabeled, inputs, y_true, batch_sizes,
-        x_labeled=None, y_labeled=None):
-    '''
+            x_labeled=None, y_labeled=None):
+    """
     Evaluates predict_var, batchwise, over all points in x_unlabeled
     and x_labeled.
 
@@ -111,7 +115,7 @@ def predict(predict_var, x_unlabeled, inputs, y_true, batch_sizes,
 
     returns:    a list of length n containing the result of all tensors
                 in return_var, where n = len(x_unlabeled) + len(x_labeled)
-    '''
+    """
     x_unlabeled, x_labeled, y_labeled = check_inputs(x_unlabeled, x_labeled, y_labeled, y_true)
 
     # combined data
@@ -141,7 +145,8 @@ def predict(predict_var, x_unlabeled, inputs, y_true, batch_sizes,
                 feed_dict[input_placeholder] = x[batch_ids]
             elif input_type == 'Labeled':
                 if len(x_labeled):
-                    batch_ids = np.random.choice(len(x_labeled), size=min(batch_sizes[input_type], len(x_labeled)), replace=False)
+                    batch_ids = np.random.choice(len(x_labeled), size=min(batch_sizes[input_type], len(x_labeled)),
+                                                 replace=False)
                     feed_dict[input_placeholder] = x_labeled[batch_ids]
                     feed_dict[y_true] = y_labeled[batch_ids]
                 else:
@@ -160,11 +165,12 @@ def predict(predict_var, x_unlabeled, inputs, y_true, batch_sizes,
     else:
         return np.sum(y_preds)
 
+
 def predict_sum(predict_var, x_unlabeled, inputs, y_true, batch_sizes, x_labeled=None, y_labeled=None):
-    '''
+    """
     Convenience function: sums over all the points to return a single value
     per tensor in predict_var
-    '''
+    """
     y = predict(predict_var, x_unlabeled, inputs, y_true, batch_sizes,
-            x_labeled=x_labeled, y_labeled=y_labeled)
+                x_labeled=x_labeled, y_labeled=y_labeled)
     return np.sum(y)

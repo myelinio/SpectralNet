@@ -1,7 +1,9 @@
 import numpy as np
-from core.util import get_scale, spectral_clustering
-from sklearn.cluster import KMeans
 from matplotlib import pyplot as plt
+from sklearn.cluster import KMeans
+
+from core.util import get_scale, spectral_clustering
+
 
 def process(x_spectralnet, y_spectralnet, data, params):
     # UNPACK DATA
@@ -22,7 +24,8 @@ def process(x_spectralnet, y_spectralnet, data, params):
     x_spectral_clustering = vectors[:, values_idx[:params['n_clusters']]]
 
     # do kmeans clustering in this subspace
-    y_spectral_clustering = KMeans(n_clusters=params['n_clusters']).fit_predict(vectors[:, values_idx[:params['n_clusters']]])
+    y_spectral_clustering = KMeans(n_clusters=params['n_clusters']).fit_predict(
+        vectors[:, values_idx[:params['n_clusters']]])
 
     # PLOT RESULTS
 

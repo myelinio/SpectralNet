@@ -1,0 +1,116 @@
+apiVersion: myelinproj.io/v1alpha1
+kind: Axon
+metadata:
+  name: spectral-net
+spec:
+
+  serviceAccountName: myelin-app-myelin
+
+  artifacts:
+    - name: spectral-net-source
+      path: /src
+      git:
+        repo: https://github.com/myelinio/SpectralNet.git
+        revision: master
+
+  volumeClaimTemplate:
+    metadata:
+      name: axon-store
+    spec:
+      storageClassName: standard
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+  tasks:
+    - name: DataPrep
+      container:
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:1.0
+        imageBuild:
+          repositoryName: spectral-net-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: Dockerfile.preprocess
+
+    - name: TrainModel
+      train:
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
+#        imageBuild:
+#          repositoryName: spectral-net-preprocess
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: Dockerfile.train-gpu
+        env:
+          - name: LD_LIBRARY_PATH
+            value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
+          - name: GPU
+            value: "0"
+          - name: GPU_MEMORY_FRACTION
+            value: "0.10"
+          - name: DATA_SET
+            value: mnist
+
+        nodeSelector:
+          cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+
+
+    - name: DeployModel
+      deploy:
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:1.0
+        imageBuild:
+          repositoryName: model-graph-model4-deploy
+          artifact: spectral-net-source
+          buildLocation: /src/test_demo_dag/model4
+          dockerfile:
+            path: Dockerfile.deploy
+        endpointType: REST
+        endpointRestType: Multipart
+
+  sensors:
+    - name: TrainOnStart
+      tasks:
+        - trainer:
+            task: TrainModel
+
+#    - name: DeploymentDecisionMaker
+#      triggers:
+#        - name: TestTrainingComplete
+#          type: Lifecycle
+#          condition: Succeeded
+#          task: TrainModel
+#      tasks:
+#        - deployer:
+#            name: deployer
+#            rolloutSpec:
+#              - destinations:
+#                  - destinationIndex: 0
+#                    weight: 50
+#                  - destinationIndex: 1
+#                    weight: 50
+#            replicas: 1
+#            models:
+#              - name: DeployModelCo
+#                modelSelectionStrategy: "best"
+#                routingStrategy:
+#                  - destinations:
+#                      - destinationName: myelin-test1
+#                        weight: 100
+#                backendModels:
+#                  - name: myelin-test1
+#                    trainer: TrainModel
+#                    deployer: DeployModel
+#                    modelSelectionStrategy: "best"
+#            routes:
+#              - path: /predict
+#                dag:
+#                  - model: DeployModelCo
+#                    path: /predict
+#              - path: /send-feedback
+#                dag:
+#                  - model: DeployModelCo
+#                    path: /send-feedback

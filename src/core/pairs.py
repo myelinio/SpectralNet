@@ -1,6 +1,6 @@
-'''
+"""
 pairs.py: contains functions used for creating pairs from labeled and unlabeled data (currently used only for the siamese network)
-'''
+"""
 
 from __future__ import absolute_import
 from __future__ import print_function
@@ -17,16 +17,15 @@ from keras.models import Sequential, Model
 from keras.layers import Dense, Dropout, Input, Lambda, Flatten
 from keras.optimizers import RMSprop
 from keras import backend as K
-from sklearn.neighbors import NearestNeighbors, LSHForest
+from sklearn.neighbors import NearestNeighbors
 from keras.layers import Conv2D, MaxPooling2D
 from keras.callbacks import LearningRateScheduler
 
 from sklearn import metrics
-from annoy import AnnoyIndex
 
 ##### Helper functions #####
 def get_choices(arr, num_choices, valid_range=[-1, np.inf], not_arr=None, replace=False):
-    '''
+    """
     Select n=num_choices choices from arr, with the following constraints for
     each choice:
         choice > valid_range[0],
@@ -37,7 +36,7 @@ def get_choices(arr, num_choices, valid_range=[-1, np.inf], not_arr=None, replac
     (inclusive)
         * in the implementation, we use an identity function to create the
         identity map arr[i] = i
-    '''
+    """
     if not_arr is None:
         not_arr = []
     if isinstance(valid_range, int):
@@ -81,7 +80,7 @@ def get_choices(arr, num_choices, valid_range=[-1, np.inf], not_arr=None, replac
     return choices
 
 def create_pairs_from_labeled_data(x, digit_indices, use_classes=None):
-    '''
+    """
     Positive and negative pair creation from labeled data.
     Alternates between positive and negative pairs.
 
@@ -91,7 +90,7 @@ def create_pairs_from_labeled_data(x, digit_indices, use_classes=None):
     use_classes:    in cases where we only want pairs from a subset
                     of the classes, use_classes is a list of the
                     classes to draw pairs from, else it is None
-    '''
+    """
     n_clusters = len(digit_indices)
     if use_classes == None:
         use_classes = list(range(n_clusters))
@@ -114,7 +113,7 @@ def create_pairs_from_labeled_data(x, digit_indices, use_classes=None):
     return pairs, labels
 
 def create_pairs_from_unlabeled_data(x1, x2=None, y=None, p=None, k=5, tot_pairs=None, precomputed_knn_path='', use_approx=False, pre_shuffled=False, verbose=None):
-    '''
+    """
     Generates positive and negative pairs for the siamese network from
     unlabeled data. Draws from the k nearest neighbors (where k is the
     provided parameter) of each point to form pairs. Number of neighbors
@@ -141,7 +140,7 @@ def create_pairs_from_unlabeled_data(x1, x2=None, y=None, p=None, k=5, tot_pairs
     returns:    pairs for x1, (pairs for x2 if x2 is provided), labels
                 (inferred by knn), (labels_true, the absolute truth, if y
                 is provided
-    '''
+    """
     if x2 is not None and x1.shape != x2.shape:
         raise ValueError("x1 and x2 must be the same shape!")
 
@@ -191,6 +190,7 @@ def create_pairs_from_unlabeled_data(x1, x2=None, y=None, p=None, k=5, tot_pairs
             x1_flat = x1[:n]
 
         if use_approx:
+            from annoy import AnnoyIndex
             ann = AnnoyIndex(x1_flat.shape[1], metric='euclidean')
             for i, x_ in enumerate(x1_flat):
                 ann.add_item(i, x_)

@@ -1,6 +1,6 @@
-'''
+"""
 layer.py: contains functions used to build all spectral and siamese net models
-'''
+"""
 from keras.layers import Dense, BatchNormalization, Flatten, Conv2D, MaxPooling2D, Lambda, Dropout
 from keras import backend as K
 import tensorflow as tf
@@ -8,7 +8,7 @@ import numpy as np
 from keras.regularizers import l2
 
 def orthonorm_op(x, epsilon=1e-7):
-    '''
+    """
     Computes a matrix that orthogonalizes the input matrix x
 
     x:      an n x d input matrix
@@ -16,7 +16,7 @@ def orthonorm_op(x, epsilon=1e-7):
 
     returns:    a d x d matrix, ortho_weights, which orthogonalizes x by
                 right multiplication
-    '''
+    """
     x_2 = K.dot(K.transpose(x), x)
     x_2 += K.eye(K.int_shape(x)[1])*epsilon
     L = tf.cholesky(x_2)
@@ -24,7 +24,7 @@ def orthonorm_op(x, epsilon=1e-7):
     return ortho_weights
 
 def Orthonorm(x, name=None):
-    '''
+    """
     Builds keras layer that handles orthogonalization of x
 
     x:      an n x d input matrix
@@ -32,7 +32,7 @@ def Orthonorm(x, name=None):
 
     returns:    a keras layer instance. during evaluation, the instance returns an n x d orthogonal matrix
                 if x is full rank and not singular
-    '''
+    """
     # get dimensionality of x
     d = x.get_shape().as_list()[-1]
     # compute orthogonalizing matrix
@@ -48,7 +48,7 @@ def Orthonorm(x, name=None):
     return l
 
 def stack_layers(inputs, layers, kernel_initializer='glorot_uniform'):
-    '''
+    """
     Builds the architecture of the network by applying each layer specified in layers to inputs.
 
     inputs:     a dict containing input_types and input_placeholders for each key and value pair, respecively.
@@ -65,7 +65,7 @@ def stack_layers(inputs, layers, kernel_initializer='glorot_uniform'):
 
     * this is necessary since spectralnet takes multiple inputs and performs special computations on the
       orthonorm layer
-    '''
+    """
     outputs = dict()
 
     for key in inputs:

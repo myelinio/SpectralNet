@@ -1,25 +1,31 @@
-'''
+"""
 Expected run times on a GTX 1080 GPU:
 MNIST: 1 hr
 Reuters: 2.5 hrs
 cc: 15 min
-'''
+"""
 
 import sys, os
 # add directories in src/ to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
 
 import argparse
 from collections import defaultdict
 
 from core.data import get_data
-from spectralnet import run_net
+from applications.spectralnet import run_net
+import keras.backend.tensorflow_backend as ktf
+import tensorflow as tf
 
 # PARSE ARGUMENTS
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=str, help='gpu number to use', default='')
-parser.add_argument('--dset', type=str, help='gpu number to use', default='mnist')
+parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to use', default='1.0')
+parser.add_argument('--dset', type=str, help='datasett to use', default='mnist')
 args = parser.parse_args()
+
+model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
+data_path = os.environ.get('DATA_PATH') or '/tmp/data/'
 
 # SELECT GPU
 os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -101,6 +107,7 @@ elif args.dset == 'reuters':
             ],
         'use_approx': True,
         'use_all_data': True,
+        'data_path': data_path,
         }
     params.update(reuters_params)
 elif args.dset == 'cc':
@@ -167,13 +174,23 @@ elif args.dset == 'cc_semisup':
         }
     params.update(cc_semisup_params)
 
+params['model_path'] = model_path
 # LOAD DATA
 data = get_data(params)
+
+
+def get_session(gpu_fraction=0.333):
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction,
+                                allow_growth=False)
+    return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+
+
+ktf.set_session(get_session(args.gpu_memory_fraction))
 
 # RUN EXPERIMENT
 x_spectralnet, y_spectralnet = run_net(data, params)
 
-if args.dset in ['cc', 'cc_semisup']:
-    # run plotting script
-    import plot_2d
-    plot_2d.process(x_spectralnet, y_spectralnet, data, params)
+# if args.dset in ['cc', 'cc_semisup']:
+#     # run plotting script
+#     import plot_2d
+#     plot_2d.process(x_spectralnet, y_spectralnet, data, params)

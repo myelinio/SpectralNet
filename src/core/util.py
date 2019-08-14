@@ -1,24 +1,22 @@
-'''
+"""
 util.py: contains various utility functions used in the models
-'''
+"""
 
-from contextlib import contextmanager
-import os, sys
+import sys
 
-from sklearn.neighbors import NearestNeighbors
 import numpy as np
-from scipy.stats import norm
 import sklearn.metrics
-
+import tensorflow as tf
 from keras import backend as K
 from keras.callbacks import Callback
-import tensorflow as tf
+from munkres import Munkres
+from sklearn.neighbors import NearestNeighbors
 
 from core import costs as cf
-from munkres import Munkres
+
 
 def make_batches(size, batch_size):
-    '''
+    """
     generates a list of (start_idx, end_idx) tuples for batching data
     of the given size and batch_size
 
@@ -26,20 +24,21 @@ def make_batches(size, batch_size):
     batch_size: batch size
 
     returns:    list of tuples of indices for data
-    '''
+    """
     num_batches = (size + batch_size - 1) // batch_size  # round up
     return [(i * batch_size, min(size, (i + 1) * batch_size))
             for i in range(num_batches)]
 
+
 def train_gen(pairs_train, dist_train, batch_size):
-    '''
+    """
     Generator used for training the siamese net with keras
 
     pairs_train:    training pairs
     dist_train:     training labels
 
     returns:        generator instance
-    '''
+    """
     batches = make_batches(len(pairs_train), batch_size)
     while 1:
         random_idx = np.random.permutation(len(pairs_train))
@@ -47,10 +46,11 @@ def train_gen(pairs_train, dist_train, batch_size):
             p_ = random_idx[batch_start:batch_end]
             x1, x2 = pairs_train[p_, 0], pairs_train[p_, 1]
             y = dist_train[p_]
-            yield([x1, x2], y)
+            yield ([x1, x2], y)
+
 
 def make_layer_list(arch, network_type=None, reg=None, dropout=0):
-    '''
+    """
     Generates the list of layers specified by arch, to be stacked
     by stack_layers (defined in src/core/layer.py)
 
@@ -63,7 +63,7 @@ def make_layer_list(arch, network_type=None, reg=None, dropout=0):
     dropout:        dropout (if any)
 
     returns:        appropriately formatted stack_layers dictionary
-    '''
+    """
     layers = []
     for i, a in enumerate(arch):
         layer = {'l2_reg': reg}
@@ -75,28 +75,30 @@ def make_layer_list(arch, network_type=None, reg=None, dropout=0):
             dropout_layer = {
                 'type': 'Dropout',
                 'rate': dropout,
-                }
+            }
             if network_type:
                 dropout_layer['name'] = '{}_dropout_{}'.format(network_type, i)
             layers.append(dropout_layer)
     return layers
 
+
 class LearningHandler(Callback):
-    '''
+    """
     Class for managing the learning rate scheduling and early stopping criteria
 
     Learning rate scheduling is implemented by multiplying the learning rate
     by 'drop' everytime the validation loss does not see any improvement
     for 'patience' training steps
-    '''
+    """
+
     def __init__(self, lr, drop, lr_tensor, patience):
-        '''
+        """
         lr:         initial learning rate
         drop:       factor by which learning rate is reduced by the
                     learning rate scheduler
         lr_tensor:  tensorflow (or keras) tensor for the learning rate
         patience:   patience of the learning rate scheduler
-        '''
+        """
         super(LearningHandler, self).__init__()
         self.lr = lr
         self.drop = drop
@@ -104,19 +106,19 @@ class LearningHandler(Callback):
         self.patience = patience
 
     def on_train_begin(self, logs=None):
-        '''
+        """
         Initialize the parameters at the start of training (this is so that
         the class may be reused for multiple training runs)
-        '''
+        """
         self.assign_op = tf.no_op()
         self.scheduler_stage = 0
         self.best_loss = np.inf
         self.wait = 0
 
     def on_epoch_end(self, epoch, logs=None):
-        '''
+        """
         Per epoch logic for managing learning rate and early stopping
-        '''
+        """
         stop_training = False
         # check if we need to stop or increase scheduler stage
         if isinstance(logs, dict):
@@ -146,8 +148,9 @@ class LearningHandler(Callback):
 
         return stop_training
 
+
 def get_scale(x, batch_size, n_nbrs):
-    '''
+    """
     Calculates the scale* based on the median distance of the kth
     neighbors of each point of x*, a m-sized sample of x, where
     k = n_nbrs and m = batch_size
@@ -161,7 +164,7 @@ def get_scale(x, batch_size, n_nbrs):
 
     *note:      the scale is the variance term of the gaussian
                 affinity matrix used by spectral net
-    '''
+    """
     n = len(x)
 
     # sample a random batch of size batch_size
@@ -176,16 +179,18 @@ def get_scale(x, batch_size, n_nbrs):
     # return the median distance
     return np.median(distances[:, n_nbrs - 1])
 
+
 def calculate_cost_matrix(C, n_clusters):
     cost_matrix = np.zeros((n_clusters, n_clusters))
 
     # cost_matrix[i,j] will be the cost of assigning cluster i to label j
     for j in range(n_clusters):
-        s = np.sum(C[:,j]) # number of examples in cluster i
+        s = np.sum(C[:, j])  # number of examples in cluster i
         for i in range(n_clusters):
-            t = C[i,j]
-            cost_matrix[j,i] = s-t
+            t = C[i, j]
+            cost_matrix[j, i] = s - t
     return cost_matrix
+
 
 def get_cluster_labels_from_indices(indices):
     n_clusters = len(indices)
@@ -194,8 +199,9 @@ def get_cluster_labels_from_indices(indices):
         clusterLabels[i] = indices[i][1]
     return clusterLabels
 
+
 def get_accuracy(cluster_assignments, y_true, n_clusters):
-    '''
+    """
     Computes the accuracy based on the provided kmeans cluster assignments
     and true labels, using the Munkres algorithm
 
@@ -205,15 +211,16 @@ def get_accuracy(cluster_assignments, y_true, n_clusters):
 
     returns:    a tuple containing the accuracy and confusion matrix,
                 in that order
-    '''
+    """
     y_pred, confusion_matrix = get_y_preds(cluster_assignments, y_true, n_clusters)
     # calculate the accuracy
     return np.mean(y_pred == y_true), confusion_matrix
 
+
 def print_accuracy(cluster_assignments, y_true, n_clusters, extra_identifier=''):
-    '''
+    """
     Convenience function: prints the accuracy
-    '''
+    """
     # get accuracy
     accuracy, confusion_matrix = get_accuracy(cluster_assignments, y_true, n_clusters)
     # get the confusion matrix
@@ -221,8 +228,9 @@ def print_accuracy(cluster_assignments, y_true, n_clusters, extra_identifier='')
     print(confusion_matrix)
     print('spectralNet{} accuracy: '.format(extra_identifier) + str(np.round(accuracy, 3)))
 
+
 def get_cluster_sols(x, cluster_obj=None, ClusterClass=None, n_clusters=None, init_args={}):
-    '''
+    """
     Using either a newly instantiated ClusterClass or a provided
     cluster_obj, generates cluster assignments based on input data
 
@@ -235,7 +243,7 @@ def get_cluster_sols(x, cluster_obj=None, ClusterClass=None, n_clusters=None, in
     init_args:      any initialization arguments passed to ClusterClass
 
     returns:    a tuple containing the label assignments and the clustering object
-    '''
+    """
     # if provided_cluster_obj is None, we must have both ClusterClass and n_clusters
     assert not (cluster_obj is None and (ClusterClass is None or n_clusters is None))
     cluster_assignments = None
@@ -253,8 +261,9 @@ def get_cluster_sols(x, cluster_obj=None, ClusterClass=None, n_clusters=None, in
     cluster_assignments = cluster_obj.predict(x)
     return cluster_assignments, cluster_obj
 
+
 def get_y_preds(cluster_assignments, y_true, n_clusters):
-    '''
+    """
     Computes the predicted labels, where label assignments now
     correspond to the actual labels in y_true (as estimated by Munkres)
 
@@ -264,7 +273,7 @@ def get_y_preds(cluster_assignments, y_true, n_clusters):
 
     returns:    a tuple containing the accuracy and confusion matrix,
                 in that order
-    '''
+    """
     confusion_matrix = sklearn.metrics.confusion_matrix(y_true, cluster_assignments, labels=None)
     # compute accuracy based on optimal 1:1 assignment of clusters to labels
     cost_matrix = calculate_cost_matrix(confusion_matrix, n_clusters)
@@ -273,22 +282,24 @@ def get_y_preds(cluster_assignments, y_true, n_clusters):
     y_pred = kmeans_to_true_cluster_labels[cluster_assignments]
     return y_pred, confusion_matrix
 
+
 def grassmann(A, B):
-    '''
+    """
     Computes the Grassmann distance between matrices A and B
 
     A, B:       input matrices
 
     returns:    the grassmann distance between A and B
-    '''
+    """
     M = np.dot(np.transpose(A), B)
     _, s, _ = np.linalg.svd(M, full_matrices=False)
     s = 1 - np.square(s)
     grassmann = np.sum(s)
     return grassmann
 
+
 def spectral_clustering(x, scale, n_nbrs=None, affinity='full', W=None):
-    '''
+    """
     Computes the eigenvectors of the graph Laplacian of x,
     using the full Gaussian affinity matrix (full), the
     symmetrized Gaussian affinity matrix with k nonzero
@@ -300,21 +311,20 @@ def spectral_clustering(x, scale, n_nbrs=None, affinity='full', W=None):
     affinity:   the aforementeiond affinity mode
 
     returns:    the eigenvectors of the spectral clustering algorithm
-    '''
+    """
     if affinity == 'full':
-        W =  K.eval(cf.full_affinity(K.variable(x), scale))
+        W = K.eval(cf.full_affinity(K.variable(x), scale))
     elif affinity == 'knn':
         if n_nbrs is None:
             raise ValueError('n_nbrs must be provided if affinity = knn!')
-        W =  K.eval(cf.knn_affinity(K.variable(x), scale, n_nbrs))
+        W = K.eval(cf.knn_affinity(K.variable(x), scale, n_nbrs))
     elif affinity == 'siamese':
         if W is None:
-            print ('no affinity matrix supplied')
+            print('no affinity matrix supplied')
             return
     d = np.sum(W, axis=1)
     D = np.diag(d)
     # (unnormalized) graph laplacian for spectral clustering
     L = D - W
     Lambda, V = np.linalg.eigh(L)
-    return(Lambda, V)
-
+    return (Lambda, V)
