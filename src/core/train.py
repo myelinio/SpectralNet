@@ -166,6 +166,64 @@ def predict(predict_var, x_unlabeled, inputs, y_true, batch_sizes,
         return np.sum(y_preds)
 
 
+def predict_unlabelled(predict_var, x_unlabeled, inputs, batch_sizes):
+    """
+    Evaluates predict_var, batchwise, over all points in x_unlabeled
+    and x_labeled.
+
+    predict_var:        list of tensors to evaluate and return
+    x_unlabeled:        unlabeled input data
+    inputs:             dictionary containing input_types and
+                        input_placeholders as key, value pairs, respectively
+    y_true:             true labels tensorflow placeholder
+    batch_sizes:        dictionary containing input_types and batch_sizes as
+                        key, value pairs, respectively
+    x_labeled:          labeled input data
+    y_labeled:          labeled input labels
+
+    returns:    a list of length n containing the result of all tensors
+                in return_var, where n = len(x_unlabeled) + len(x_labeled)
+    """
+
+    # combined data
+    x = x_unlabeled
+
+    # calculate batches for predict loop
+    unlabeled_batch_size = batch_sizes.get('Unlabeled', 0)
+    labeled_batch_size = batch_sizes.get('Labeled', 0)
+    if 'Labeled' in batch_sizes and 'Unlabeled' in batch_sizes:
+        assert unlabeled_batch_size == labeled_batch_size
+    batch_size = min(len(x), max(unlabeled_batch_size, labeled_batch_size))
+    batches = make_batches(len(x), batch_size)
+
+    y_preds = []
+    # predict over all points
+    for i, (batch_start, batch_end) in enumerate(batches):
+        feed_dict = {K.learning_phase(): 0}
+
+        # feed corresponding input for each input_type
+        for input_type, input_placeholder in inputs.items():
+            if input_type == 'Unlabeled':
+                # feed_dict[input_placeholder] = x[batch_start:batch_end]
+                feed_dict['UnlabeledInput:0'] = x[batch_start:batch_end]
+            elif input_type == 'Orthonorm':
+                # feed_dict[input_placeholder] = x[batch_start:batch_end]
+                feed_dict['OrthonormInput:0'] = x[batch_start:batch_end]
+
+            else:
+                raise Exception("Unrecognized feed name ['{}']".format(input_type))
+
+        # evaluate the batch
+        _ = K.get_session().run(K.tf.get_default_graph().get_tensor_by_name("ortho_weights_update:0"), feed_dict=feed_dict)
+        y_pred_batch = np.asarray(K.get_session().run(predict_var, feed_dict=feed_dict))
+        y_preds.append(y_pred_batch)
+
+    if len(y_preds[0].shape):
+        return np.concatenate(y_preds)
+    else:
+        return np.sum(y_preds)
+
+
 def predict_sum(predict_var, x_unlabeled, inputs, y_true, batch_sizes, x_labeled=None, y_labeled=None):
     """
     Convenience function: sums over all the points to return a single value

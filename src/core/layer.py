@@ -1,11 +1,11 @@
 """
 layer.py: contains functions used to build all spectral and siamese net models
 """
-from keras.layers import Dense, BatchNormalization, Flatten, Conv2D, MaxPooling2D, Lambda, Dropout
-from keras import backend as K
-import tensorflow as tf
 import numpy as np
+from keras import backend as K
+from keras.layers import Dense, BatchNormalization, Flatten, Conv2D, MaxPooling2D, Lambda, Dropout
 from keras.regularizers import l2
+import tensorflow as tf
 
 def orthonorm_op(x, epsilon=1e-7):
     """
@@ -17,13 +17,21 @@ def orthonorm_op(x, epsilon=1e-7):
     returns:    a d x d matrix, ortho_weights, which orthogonalizes x by
                 right multiplication
     """
+    # x_2 = K.dot(K.transpose(x), x)
+    # x_2 = K.tf.add(x_2, K.tf.multiply(K.eye(K.int_shape(x)[1]), epsilon))
+    # L = K.tf.cholesky(x_2)
+    # ortho_weights = K.tf.multiply(K.tf.transpose(K.tf.matrix_inverse(L)),
+    #                               K.tf.sqrt(K.tf.cast(K.tf.shape(x)[0], dtype=K.floatx())))
+    # return ortho_weights
+
     x_2 = K.dot(K.transpose(x), x)
     x_2 += K.eye(K.int_shape(x)[1])*epsilon
     L = tf.cholesky(x_2)
     ortho_weights = tf.transpose(tf.matrix_inverse(L)) * tf.sqrt(tf.cast(tf.shape(x)[0], dtype=K.floatx()))
     return ortho_weights
 
-def Orthonorm(x, name=None):
+
+def Orthonorm(X, name=None):
     """
     Builds keras layer that handles orthogonalization of x
 
@@ -34,18 +42,22 @@ def Orthonorm(x, name=None):
                 if x is full rank and not singular
     """
     # get dimensionality of x
-    d = x.get_shape().as_list()[-1]
+    d = X.get_shape().as_list()[-1]
     # compute orthogonalizing matrix
-    ortho_weights = orthonorm_op(x)
+    ortho_weights = orthonorm_op(X)
     # create variable that holds this matrix
-    ortho_weights_store = K.variable(np.zeros((d,d)))
+    ortho_weights_store = K.variable(np.zeros((d, d)))
     # create op that saves matrix into variable
-    ortho_weights_update = tf.assign(ortho_weights_store, ortho_weights, name='ortho_weights_update')
+    ortho_weights_update = K.tf.assign(ortho_weights_store, ortho_weights, name='ortho_weights_update')
     # switch between stored and calculated weights based on training or validation
-    l = Lambda(lambda x: K.in_train_phase(K.dot(x, ortho_weights), K.dot(x, ortho_weights_store)), name=name)
+
+    def f(t):
+        return K.in_train_phase(K.dot(t, ortho_weights), K.dot(t, ortho_weights_store))
+    l = Lambda(lambda x: f(x), name=name)
 
     l.add_update(ortho_weights_update)
     return l
+
 
 def stack_layers(inputs, layers, kernel_initializer='glorot_uniform'):
     """
@@ -69,7 +81,7 @@ def stack_layers(inputs, layers, kernel_initializer='glorot_uniform'):
     outputs = dict()
 
     for key in inputs:
-        outputs[key]=inputs[key]
+        outputs[key] = inputs[key]
 
     for layer in layers:
         # check for l2_reg argument
@@ -79,19 +91,26 @@ def stack_layers(inputs, layers, kernel_initializer='glorot_uniform'):
 
         # create the layer
         if layer['type'] == 'softplus_reg':
-            l = Dense(layer['size'], activation='softplus', kernel_initializer=kernel_initializer, kernel_regularizer=l2(0.001), name=layer.get('name'))
+            l = Dense(layer['size'], activation='softplus', kernel_initializer=kernel_initializer,
+                      kernel_regularizer=l2(0.001), name=layer.get('name'))
         elif layer['type'] == 'softplus':
-            l = Dense(layer['size'], activation='softplus', kernel_initializer=kernel_initializer, kernel_regularizer=l2_reg, name=layer.get('name'))
+            l = Dense(layer['size'], activation='softplus', kernel_initializer=kernel_initializer,
+                      kernel_regularizer=l2_reg, name=layer.get('name'))
         elif layer['type'] == 'softmax':
-            l = Dense(layer['size'], activation='softmax', kernel_initializer=kernel_initializer, kernel_regularizer=l2_reg, name=layer.get('name'))
+            l = Dense(layer['size'], activation='softmax', kernel_initializer=kernel_initializer,
+                      kernel_regularizer=l2_reg, name=layer.get('name'))
         elif layer['type'] == 'tanh':
-            l = Dense(layer['size'], activation='tanh', kernel_initializer=kernel_initializer, kernel_regularizer=l2_reg, name=layer.get('name'))
+            l = Dense(layer['size'], activation='tanh', kernel_initializer=kernel_initializer,
+                      kernel_regularizer=l2_reg, name=layer.get('name'))
         elif layer['type'] == 'relu':
-            l = Dense(layer['size'], activation='relu', kernel_initializer=kernel_initializer, kernel_regularizer=l2_reg, name=layer.get('name'))
+            l = Dense(layer['size'], activation='relu', kernel_initializer=kernel_initializer,
+                      kernel_regularizer=l2_reg, name=layer.get('name'))
         elif layer['type'] == 'selu':
-            l = Dense(layer['size'], activation='selu', kernel_initializer=kernel_initializer, kernel_regularizer=l2_reg, name=layer.get('name'))
+            l = Dense(layer['size'], activation='selu', kernel_initializer=kernel_initializer,
+                      kernel_regularizer=l2_reg, name=layer.get('name'))
         elif layer['type'] == 'Conv2D':
-            l = Conv2D(layer['channels'], kernel_size=layer['kernel'], activation='relu', data_format='channels_last', kernel_regularizer=l2_reg, name=layer.get('name'))
+            l = Conv2D(layer['channels'], kernel_size=layer['kernel'], activation='relu', data_format='channels_last',
+                       kernel_regularizer=l2_reg, name=layer.get('name'))
         elif layer['type'] == 'BatchNormalization':
             l = BatchNormalization(name=layer.get('name'))
         elif layer['type'] == 'MaxPooling2D':
@@ -107,6 +126,6 @@ def stack_layers(inputs, layers, kernel_initializer='glorot_uniform'):
 
         # apply the layer to each input in inputs
         for k in outputs:
-            outputs[k]=l(outputs[k])
+            outputs[k] = l(outputs[ k])
 
     return outputs

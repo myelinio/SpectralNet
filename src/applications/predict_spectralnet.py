@@ -16,6 +16,17 @@ from core.data import get_data
 from applications.spectralnet import run_net
 import keras.backend.tensorflow_backend as ktf
 import tensorflow as tf
+import os
+
+import numpy as np
+import tensorflow as tf
+from keras.layers import Input
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import OneHotEncoder
+
+from core import networks
+from core.util import print_accuracy, get_cluster_sols, get_y_preds, get_y_preds_from_cm
+from sklearn.externals import joblib
 
 # PARSE ARGUMENTS
 parser = argparse.ArgumentParser()
@@ -119,7 +130,8 @@ elif args.dset == 'cc':
         # training parameters
         'n_clusters': 2,
         'use_code_space': False,
-        'affinity': 'full',
+        'affinity': 'siamese',
+        # 'affinity': 'full',
         'n_nbrs': 2,
         'scale_nbr': 2,
         'spec_ne': 300,
@@ -151,10 +163,10 @@ elif args.dset == 'cc_semisup':
         'train_labeled_fraction': 0.02, # fraction of the training set to provide labels for (in semisupervised experiments)
         'n_clusters': 2,
         'use_code_space': False,
-        'affinity': 'full',
+        'affinity': 'knn',
         'n_nbrs': 2,
         'scale_nbr': 2,
-        'spec_ne': 300,
+        'spec_ne': 10,
         'spec_lr': 1e-3,
         'spec_patience': 30,
         'spec_drop': 0.1,
@@ -187,10 +199,93 @@ def get_session(gpu_fraction=0.333):
 
 ktf.set_session(get_session(args.gpu_memory_fraction))
 
-# RUN EXPERIMENT
-x_spectralnet, y_spectralnet = run_net(data, params)
 
-# if args.dset in ['cc', 'cc_semisup']:
-#     # run plotting script
-#     import plot_2d
-#     plot_2d.process(x_spectralnet, y_spectralnet, data, params)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
+
+x_train, y_train, x_val, y_val, x_test, y_test = data['spectral']['train_and_test']
+x_train_unlabeled, y_train_unlabeled, x_train_labeled, y_train_labeled = data['spectral'][
+    'train_unlabeled_and_labeled']
+x_val_unlabeled, y_val_unlabeled, x_val_labeled, y_val_labeled = data['spectral']['val_unlabeled_and_labeled']
+
+if 'siamese' in params['affinity']:
+    pairs_train, dist_train, pairs_val, dist_val = data['siamese']['train_and_test']
+
+
+# x = np.ones((10, 2))
+# y = np.ones((10, 1))
+
+x = np.concatenate([x_train, np.ones((10, 2))], axis=0)
+np.savetxt('spectralnet_input.txt', x)
+batch_sizes = {
+    'Unlabeled': x.shape[0],
+    'Labeled': x.shape[0],
+    'Orthonorm': x.shape[0],
+}
+def run_predict(params):
+    # ktf.set_learning_phase(0)
+    input_shape = x.shape[1:]
+
+    y_labeled_onehot = np.empty((0, params['n_clusters']))
+
+    # spectralnet has three inputs -- they are defined here
+    inputs = {
+        'Unlabeled': Input(shape=input_shape, name='UnlabeledInput'),
+        'Labeled': Input(shape=input_shape, name='LabeledInput'),
+        'Orthonorm': Input(shape=input_shape, name='OrthonormInput'),
+    }
+
+    #
+    # DEFINE AND TRAIN SIAMESE NET
+    #
+    # run only if we are using a siamese network
+    if params['affinity'] == 'siamese':
+        siamese_model_path = os.path.join(params['model_path'], 'spectral_net')
+
+        siamese_net = networks.SiameseNet(inputs, params['arch'], params.get('siam_reg'), None, siamese_model_path)
+
+        # history = siamese_net.train(pairs_train, dist_train, pairs_val, dist_val,
+        #                             params['siam_lr'], params['siam_drop'], params['siam_patience'],
+        #                             params['siam_ne'], params['siam_batch_size'])
+        if not os.path.isdir(siamese_model_path):
+            os.makedirs(siamese_model_path)
+        siamese_net.save_model()
+
+
+    else:
+        siamese_net = None
+
+    #
+    # DEFINE AND TRAIN SPECTRALNET
+    #
+    y_true = tf.placeholder(tf.float32, shape=(None, params['n_clusters']), name='y_true')
+
+    spectralnet_model_path = os.path.join(params['model_path'], 'spectral_net')
+    spectral_net = networks.SpectralNet(inputs, params['arch'],
+                                        params.get('spec_reg'),
+                                        y_true, y_labeled_onehot,
+                                        params['n_clusters'], params['affinity'], params['scale_nbr'],
+                                        params['n_nbrs'], batch_sizes,
+                                        spectralnet_model_path,
+                                        siamese_net, train=False
+                                        )
+    # EVALUATE
+    #
+
+    # get final embeddings
+    x_spectralnet = spectral_net.predict_unlabelled(x)
+    print('x_spectralnet', x_spectralnet.shape)
+    km = joblib.load(os.path.join(params['model_path'], 'spectral_net', 'kmeans.sav'))
+    kmeans_assignments = km.predict(x_spectralnet)
+
+    confusion_matrix = joblib.load(os.path.join(params['model_path'], 'spectral_net', 'confusion_matrix.sav'))
+
+    y_spectralnet = get_y_preds_from_cm(kmeans_assignments, params['n_clusters'], confusion_matrix)
+
+    return x_spectralnet, y_spectralnet
+
+# RUN EXPERIMENT
+x_spectralnet, y_spectralnet = run_predict(params)
+if args.dset in ['cc', 'cc_semisup']:
+    # run plotting script
+    import plot_2d
+    plot_2d.process(x_spectralnet, y_spectralnet, x, y=None, params=params)

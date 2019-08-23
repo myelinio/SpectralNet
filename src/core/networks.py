@@ -51,7 +51,6 @@ class SiameseNet:
         if os.path.isfile(self.model_weights_path):
             self.net.load_weights(self.model_weights_path)
 
-
     def train(self, pairs_train, dist_train, pairs_val, dist_val,
               lr, drop, patience, num_epochs, batch_size):
         # create handler for early stopping and learning rate scheduling
@@ -82,13 +81,13 @@ class SiameseNet:
                              batch_sizes=batch_sizes)
 
     def save_model(self):
-        self.net.save_weights(self.model_weights_path)
+        self.net.save(self.model_weights_path)
 
 
 class SpectralNet:
     def __init__(self, inputs, arch, spec_reg, y_true, y_train_labeled_onehot,
                  n_clusters, affinity, scale_nbr, n_nbrs, batch_sizes, model_path,
-                 siamese_net=None, x_train=None, have_labeled=False):
+                 siamese_net=None, train=True, x_train=None, have_labeled=False):
         self.model_weights_path = os.path.join(model_path, "model.h5")
 
         self.y_true = y_true
@@ -108,54 +107,61 @@ class SpectralNet:
         # create spectralnet
         self.outputs = stack_layers(self.inputs, self.layers)
         self.net = Model(inputs=self.inputs['Unlabeled'], outputs=self.outputs['Unlabeled'])
+        k = 'Unlabeled'
+        self.nets = dict()
+        for k in self.inputs.keys():
+            self.nets[k] = Model(inputs=self.inputs[k], outputs=self.outputs[k])
 
         # DEFINE LOSS
+        if train:
+            # generate affinity matrix W according to params
+            if affinity == 'siamese':
+                input_affinity = tf.concat([siamese_net.outputs['A'], siamese_net.outputs['Labeled']], axis=0)
+                x_affinity = siamese_net.predict(x_train, batch_sizes)
+            elif affinity in ['knn', 'full']:
+                input_affinity = tf.concat([self.inputs['Unlabeled'], self.inputs['Labeled']], axis=0)
+                x_affinity = x_train
 
-        # generate affinity matrix W according to params
-        if affinity == 'siamese':
-            input_affinity = tf.concat([siamese_net.outputs['A'], siamese_net.outputs['Labeled']], axis=0)
-            x_affinity = siamese_net.predict(x_train, batch_sizes)
-        elif affinity in ['knn', 'full']:
-            input_affinity = tf.concat([self.inputs['Unlabeled'], self.inputs['Labeled']], axis=0)
-            x_affinity = x_train
+            # calculate scale for affinity matrix
+            scale = get_scale(x_affinity, self.batch_sizes['Unlabeled'], scale_nbr)
 
-        # calculate scale for affinity matrix
-        scale = get_scale(x_affinity, self.batch_sizes['Unlabeled'], scale_nbr)
+            # create affinity matrix
+            if affinity == 'full':
+                W = costs.full_affinity(input_affinity, scale=scale)
+            elif affinity in ['knn', 'siamese']:
+                W = costs.knn_affinity(input_affinity, n_nbrs, scale=scale, scale_nbr=scale_nbr)
 
-        # create affinity matrix
-        if affinity == 'full':
-            W = costs.full_affinity(input_affinity, scale=scale)
-        elif affinity in ['knn', 'siamese']:
-            W = costs.knn_affinity(input_affinity, n_nbrs, scale=scale, scale_nbr=scale_nbr)
+            # if we have labels, use them
+            if have_labeled:
+                # get true affinities (from labeled data)
+                W_true = tf.cast(tf.equal(costs.squared_distance(y_true), 0), dtype='float32')
 
-        # if we have labels, use them
-        if have_labeled:
-            # get true affinities (from labeled data)
-            W_true = tf.cast(tf.equal(costs.squared_distance(y_true), 0), dtype='float32')
+                # replace lower right corner of W with W_true
+                unlabeled_end = tf.shape(self.inputs['Unlabeled'])[0]
+                W_u = W[:unlabeled_end, :]  # upper half
+                W_ll = W[unlabeled_end:, :unlabeled_end]  # lower left
+                W_l = tf.concat((W_ll, W_true), axis=1)  # lower half
+                W = tf.concat((W_u, W_l), axis=0)
 
-            # replace lower right corner of W with W_true
-            unlabeled_end = tf.shape(self.inputs['Unlabeled'])[0]
-            W_u = W[:unlabeled_end, :]  # upper half
-            W_ll = W[unlabeled_end:, :unlabeled_end]  # lower left
-            W_l = tf.concat((W_ll, W_true), axis=1)  # lower half
-            W = tf.concat((W_u, W_l), axis=0)
+                # create pairwise batch distance matrix self.Dy
+                self.Dy = costs.squared_distance(
+                    tf.concat([self.outputs['Unlabeled'], self.outputs['Labeled']], axis=0))
+            else:
+                self.Dy = costs.squared_distance(self.outputs['Unlabeled'])
 
-            # create pairwise batch distance matrix self.Dy
-            self.Dy = costs.squared_distance(
-                tf.concat([self.outputs['Unlabeled'], self.outputs['Labeled']], axis=0))
-        else:
-            self.Dy = costs.squared_distance(self.outputs['Unlabeled'])
+            # define loss
+            self.loss = K.sum(W * self.Dy) / (2 * batch_sizes['Unlabeled'])
 
-        # define loss
-        self.loss = K.sum(W * self.Dy) / (2 * batch_sizes['Unlabeled'])
-
-        # create the train step update
-        self.learning_rate = tf.Variable(0., name='spectral_net_learning_rate')
-        self.train_step = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(self.loss,
-                                                                                               var_list=self.net.trainable_weights)
+            # create the train step update
+            self.learning_rate = tf.Variable(0., name='spectral_net_learning_rate')
+            self.train_step = tf.train.RMSPropOptimizer(learning_rate=self.learning_rate).minimize(self.loss,
+                                                                                                   var_list=self.net.trainable_weights)
 
         if os.path.isfile(self.model_weights_path):
             self.net.load_weights(self.model_weights_path)
+            # for k in self.nets.keys():
+            #     self.nets[k].load_weights(
+            #     '/Users/ryadhkhsib/Dev/workspaces/myelin/SpectralNet/model/spectral_net/model%s.h5' % k)
 
         else:
             # initialize spectralnet variables
@@ -223,5 +229,18 @@ class SpectralNet:
             y_labeled=self.y_train_labeled_onehot[0:0],
             batch_sizes=self.batch_sizes)
 
+    def predict_unlabelled(self, x):
+        # test inputs do not require the 'Labeled' input
+        input_shape = x.shape[1:]
+        inputs_test = {
+            'Unlabeled': Input(shape=input_shape, name='UnlabeledInput'),
+            'Orthonorm': Input(shape=input_shape, name='OrthonormInput'),
+        }
+        return train.predict_unlabelled(
+            self.outputs['Unlabeled'],
+            x_unlabeled=x,
+            inputs=inputs_test,
+            batch_sizes=self.batch_sizes)
+
     def save_model(self):
-        self.net.save_weights(self.model_weights_path)
+        self.net.save(self.model_weights_path)

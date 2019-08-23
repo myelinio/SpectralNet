@@ -65,7 +65,7 @@ spec:
         imageBuild:
           repositoryName: model-graph-model4-deploy
           artifact: spectral-net-source
-          buildLocation: /src/test_demo_dag/model4
+          buildLocation: /src
           dockerfile:
             path: Dockerfile.deploy
         endpointType: REST

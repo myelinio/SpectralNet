@@ -5,13 +5,8 @@ from sklearn.cluster import KMeans
 from core.util import get_scale, spectral_clustering
 
 
-def process(x_spectralnet, y_spectralnet, data, params):
-    # UNPACK DATA
-    x_train, y_train, x_val, y_val, x_test, y_test = data['spectral']['train_and_test']
+def process(x_spectralnet, y_spectralnet, x, y, params):
 
-    # concatenate
-    x = np.concatenate([x_train, x_val, x_test], axis=0)
-    y = np.concatenate([y_train, y_val, y_test], axis=0)
 
     # PERFORM SPECTRAL CLUSTERING ON DATA
 
@@ -54,14 +49,15 @@ def process(x_spectralnet, y_spectralnet, data, params):
     ax2.set_title("histogram of net outputs")
 
     # plot eigenvectors
-    y_idx = np.argsort(y)
-    fig4 = plt.figure()
-    ax1 = fig4.add_subplot(212)
-    ax1.plot(x_spectral_clustering[y_idx])
-    ax1.set_title("plot of true eigenvectors")
-    ax2 = fig4.add_subplot(211)
-    ax2.plot(x_spectralnet[y_idx])
-    ax2.set_title("plot of net outputs")
+    if y is not None:
+        y_idx = np.argsort(y)
+        fig4 = plt.figure()
+        ax1 = fig4.add_subplot(212)
+        ax1.plot(x_spectral_clustering[y_idx])
+        ax1.set_title("plot of true eigenvectors")
+        ax2 = fig4.add_subplot(211)
+        ax2.plot(x_spectralnet[y_idx])
+        ax2.set_title("plot of net outputs")
 
     plt.draw()
     plt.show()

@@ -11,11 +11,12 @@ from sklearn.preprocessing import OneHotEncoder
 
 from core import networks
 from core.util import print_accuracy, get_cluster_sols, get_y_preds
+from sklearn.externals import joblib
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
 
 
-def run_net(data, params):
+def run_net(data, params, train=True):
     #
     # UNPACK DATA
     #
@@ -89,20 +90,20 @@ def run_net(data, params):
                                         params['n_clusters'], params['affinity'], params['scale_nbr'],
                                         params['n_nbrs'], batch_sizes,
                                         spectralnet_model_path,
-                                        siamese_net, x_train, len(x_train_labeled),
+                                        siamese_net, True, x_train, len(x_train_labeled),
                                         )
+    if train:
+        spectral_net.train(
+            x_train_unlabeled, x_train_labeled, x_val_unlabeled,
+            params['spec_lr'], params['spec_drop'], params['spec_patience'],
+            params['spec_ne'])
 
-    spectral_net.train(
-        x_train_unlabeled, x_train_labeled, x_val_unlabeled,
-        params['spec_lr'], params['spec_drop'], params['spec_patience'],
-        params['spec_ne'])
+        print("finished training")
+        if not os.path.isdir(spectralnet_model_path):
+            os.makedirs(spectralnet_model_path)
+        spectral_net.save_model()
 
-    print("finished training")
-    if not os.path.isdir(spectralnet_model_path):
-        os.makedirs(spectralnet_model_path)
-    spectral_net.save_model()
-
-    print("finished saving model")
+        print("finished saving model")
 
     #
     # EVALUATE
@@ -114,7 +115,11 @@ def run_net(data, params):
     # get accuracy and nmi
     kmeans_assignments, km = get_cluster_sols(x_spectralnet, ClusterClass=KMeans, n_clusters=params['n_clusters'],
                                               init_args={'n_init': 10})
-    y_spectralnet, _ = get_y_preds(kmeans_assignments, y, params['n_clusters'])
+    joblib.dump(km, os.path.join(params['model_path'], 'spectral_net', 'kmeans.sav'))
+
+    y_spectralnet, confusion_matrix = get_y_preds(kmeans_assignments, y, params['n_clusters'])
+    joblib.dump(confusion_matrix, os.path.join(params['model_path'], 'spectral_net', 'confusion_matrix.sav'))
+
     print_accuracy(kmeans_assignments, y, params['n_clusters'])
     from sklearn.metrics import normalized_mutual_info_score as nmi
     nmi_score = nmi(kmeans_assignments, y)
