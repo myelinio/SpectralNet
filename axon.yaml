@@ -33,15 +33,40 @@ spec:
           dockerfile:
             path: Dockerfile.preprocess
 
-    - name: TrainModel
+    - name: TrainSiameseModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
-#        imageBuild:
-#          repositoryName: spectral-net-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: Dockerfile.train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
+        imageBuild:
+          repositoryName: siamese-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: Dockerfile.siamese-train-gpu
+        env:
+          - name: LD_LIBRARY_PATH
+            value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
+          - name: GPU
+            value: "0"
+          - name: GPU_MEMORY_FRACTION
+            value: "0.10"
+          - name: DATA_SET
+            value: mnist
+
+        nodeSelector:
+          cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+
+    - name: TrainSpectralNetModel
+      train:
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
+        imageBuild:
+          repositoryName: spectral-net-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: Dockerfile.train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -72,10 +97,16 @@ spec:
         endpointRestType: Multipart
 
   sensors:
-    - name: TrainOnStart
+    - name: TrainSiameseModelOnStart
       tasks:
         - trainer:
-            task: TrainModel
+            task: TrainSiameseModel
+
+
+    - name: TrainSpectralNetModelOnStart
+      tasks:
+        - trainer:
+            task: TrainSpectralNetModel
 
 #    - name: DeploymentDecisionMaker
 #      triggers:
