@@ -5,14 +5,14 @@ from sklearn.cluster import KMeans
 from core.util import get_scale, spectral_clustering
 
 
-def process(x_spectralnet, y_spectralnet, x, y, params):
+def process_plot(x_spectralnet, y_spectralnet, x, y, W, params):
 
 
     # PERFORM SPECTRAL CLUSTERING ON DATA
 
     # get eigenvalues and eigenvectors
     scale = get_scale(x, params['batch_size'], params['scale_nbr'])
-    values, vectors = spectral_clustering(x, scale, params['n_nbrs'], params['affinity'])
+    values, vectors = spectral_clustering(x, scale, params['n_nbrs'], params['affinity'], W=W)
 
     # sort, then store the top n_clusters=2
     values_idx = np.argsort(values)

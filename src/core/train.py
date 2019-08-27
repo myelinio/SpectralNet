@@ -209,6 +209,9 @@ def predict_unlabelled(predict_var, x_unlabeled, inputs, batch_sizes):
             elif input_type == 'Orthonorm':
                 # feed_dict[input_placeholder] = x[batch_start:batch_end]
                 feed_dict['OrthonormInput:0'] = x[batch_start:batch_end]
+            elif input_type == 'Labeled':
+                # feed_dict[input_placeholder] = x[batch_start:batch_end]
+                feed_dict['LabeledInput:0'] = x[batch_start:batch_end]
 
             else:
                 raise Exception("Unrecognized feed name ['{}']".format(input_type))

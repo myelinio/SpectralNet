@@ -26,8 +26,8 @@ def run_net(data, params, train=True):
         'train_unlabeled_and_labeled']
     x_val_unlabeled, y_val_unlabeled, x_val_labeled, y_val_labeled = data['spectral']['val_unlabeled_and_labeled']
 
-    if 'siamese' in params['affinity']:
-        pairs_train, dist_train, pairs_val, dist_val = data['siamese']['train_and_test']
+    # if 'siamese' in params['affinity']:
+    #     pairs_train, dist_train, pairs_val, dist_val = data['siamese']['train_and_test']
 
     x = np.concatenate((x_train, x_val, x_test), axis=0)
     y = np.concatenate((y_train, y_val, y_test), axis=0)
@@ -65,17 +65,16 @@ def run_net(data, params, train=True):
 
     # run only if we are using a siamese network
     if params['affinity'] == 'siamese':
-        siamese_model_path = os.path.join(params['model_path'], 'spectral_net')
+        siamese_model_path = params['siamese_model_path']
 
         siamese_net = networks.SiameseNet(inputs, params['arch'], params.get('siam_reg'), y_true, siamese_model_path)
 
-        history = siamese_net.train(pairs_train, dist_train, pairs_val, dist_val,
-                                    params['siam_lr'], params['siam_drop'], params['siam_patience'],
-                                    params['siam_ne'], params['siam_batch_size'])
-        if not os.path.isdir(siamese_model_path):
-            os.makedirs(siamese_model_path)
-        siamese_net.save_model()
-
+        # history = siamese_net.train(pairs_train, dist_train, pairs_val, dist_val,
+        #                             params['siam_lr'], params['siam_drop'], params['siam_patience'],
+        #                             params['siam_ne'], params['siam_batch_size'])
+        # if not os.path.isdir(siamese_model_path):
+        #     os.makedirs(siamese_model_path)
+        # siamese_net.save_model()
 
     else:
         siamese_net = None

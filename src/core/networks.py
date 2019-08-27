@@ -80,6 +80,15 @@ class SiameseNet:
         return train.predict(self.outputs['A'], x_unlabeled=x, inputs=self.orig_inputs, y_true=self.y_true,
                              batch_sizes=batch_sizes)
 
+    def predict_unlabelled(self, x, batch_sizes):
+        input_shape = x.shape[1:]
+        inputs = {
+            'Unlabeled': Input(shape=input_shape, name='UnlabeledInput'),
+            'Orthonorm': Input(shape=input_shape, name='OrthonormInput'),
+        }
+        return train.predict_unlabelled(self.outputs['A'], x_unlabeled=x, inputs=inputs,
+                             batch_sizes=batch_sizes)
+
     def save_model(self):
         self.net.save(self.model_weights_path)
 
@@ -107,10 +116,6 @@ class SpectralNet:
         # create spectralnet
         self.outputs = stack_layers(self.inputs, self.layers)
         self.net = Model(inputs=self.inputs['Unlabeled'], outputs=self.outputs['Unlabeled'])
-        k = 'Unlabeled'
-        self.nets = dict()
-        for k in self.inputs.keys():
-            self.nets[k] = Model(inputs=self.inputs[k], outputs=self.outputs[k])
 
         # DEFINE LOSS
         if train:
@@ -159,10 +164,6 @@ class SpectralNet:
 
         if os.path.isfile(self.model_weights_path):
             self.net.load_weights(self.model_weights_path)
-            # for k in self.nets.keys():
-            #     self.nets[k].load_weights(
-            #     '/Users/ryadhkhsib/Dev/workspaces/myelin/SpectralNet/model/spectral_net/model%s.h5' % k)
-
         else:
             # initialize spectralnet variables
             K.get_session().run(tf.variables_initializer(self.net.trainable_weights))
@@ -230,16 +231,28 @@ class SpectralNet:
             batch_sizes=self.batch_sizes)
 
     def predict_unlabelled(self, x):
-        # test inputs do not require the 'Labeled' input
         input_shape = x.shape[1:]
-        inputs_test = {
+        inputs = {
             'Unlabeled': Input(shape=input_shape, name='UnlabeledInput'),
             'Orthonorm': Input(shape=input_shape, name='OrthonormInput'),
         }
         return train.predict_unlabelled(
             self.outputs['Unlabeled'],
             x_unlabeled=x,
-            inputs=inputs_test,
+            inputs=inputs,
+            batch_sizes=self.batch_sizes)
+
+    def run_tensor(self, x, t):
+        input_shape = x.shape[1:]
+        inputs = {
+            'Unlabeled': Input(shape=input_shape, name='UnlabeledInput'),
+            'Labeled': Input(shape=input_shape, name='LabeledInput'),
+            'Orthonorm': Input(shape=input_shape, name='OrthonormInput'),
+        }
+        return train.predict_unlabelled(
+            t,
+            x_unlabeled=x,
+            inputs=inputs,
             batch_sizes=self.batch_sizes)
 
     def save_model(self):

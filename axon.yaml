@@ -103,10 +103,10 @@ spec:
             task: TrainSiameseModel
 
 
-    - name: TrainSpectralNetModelOnStart
-      tasks:
-        - trainer:
-            task: TrainSpectralNetModel
+#    - name: TrainSpectralNetModelOnStart
+#      tasks:
+#        - trainer:
+#            task: TrainSpectralNetModel
 
 #    - name: DeploymentDecisionMaker
 #      triggers:

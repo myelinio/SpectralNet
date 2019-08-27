@@ -340,7 +340,7 @@ def spectral_clustering(x, scale, n_nbrs=None, affinity='full', W=None):
     elif affinity == 'siamese':
         if W is None:
             print('no affinity matrix supplied')
-            return
+            return None, None
     d = np.sum(W, axis=1)
     D = np.diag(d)
     # (unnormalized) graph laplacian for spectral clustering
