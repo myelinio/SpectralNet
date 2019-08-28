@@ -4,24 +4,17 @@ pairs.py: contains functions used for creating pairs from labeled and unlabeled 
 
 from __future__ import absolute_import
 from __future__ import print_function
-import numpy as np
-import math
-import random
+
 import pickle
-import h5py
-
-from random import randint
+import random
 from collections import defaultdict
-from keras.datasets import mnist
-from keras.models import Sequential, Model
-from keras.layers import Dense, Dropout, Input, Lambda, Flatten
-from keras.optimizers import RMSprop
-from keras import backend as K
-from sklearn.neighbors import NearestNeighbors
-from keras.layers import Conv2D, MaxPooling2D
-from keras.callbacks import LearningRateScheduler
+from random import randint
 
+import h5py
+import numpy as np
 from sklearn import metrics
+from sklearn.neighbors import NearestNeighbors
+
 
 ##### Helper functions #####
 def get_choices(arr, num_choices, valid_range=[-1, np.inf], not_arr=None, replace=False):

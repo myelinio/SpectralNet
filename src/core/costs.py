@@ -4,7 +4,8 @@ costs.py: contains all cost functions (and related helper functions) for spectra
 
 import numpy as np
 import tensorflow as tf
-from keras import backend as K
+# from keras import backend as K
+import tensorflow.keras.backend as K
 
 
 def squared_distance(X, Y=None, W=None):

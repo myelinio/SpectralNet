@@ -6,12 +6,14 @@ import os
 
 import h5py
 import numpy as np
-from keras import backend as K
+# from keras import backend as K
+import tensorflow.keras.backend as K
 from keras.datasets import mnist
 from keras.models import model_from_json
 from sklearn import preprocessing
 
 from core import pairs
+from core.networks import AutoEncoder
 
 
 def get_siamese_data(params, y_train_labeled, y_val_labeled, x_train_labeled, x_val_labeled, x_train_unlabeled,
@@ -275,10 +277,14 @@ def embed_data(x, dset):
                                     [pt_ae.output])
     x_embedded = predict_with_K_fn(get_embeddings, x)[0]
     x_recon = predict_with_K_fn(get_reconstruction, x_embedded)[0]
+    del pt_ae
+
+    # ae = AutoEncoder(dset)
+    # x_embedded = ae.predict_embedding(x)
+    # x_recon = ae.predict_reconstruction(x_embedded)
+
     reconstruction_mse = np.mean(np.square(x - x_recon))
     print("using pretrained embeddings; sanity check, total reconstruction error:", np.mean(reconstruction_mse))
-
-    del pt_ae
 
     return x_embedded
 
@@ -393,6 +399,37 @@ def generate_cc(n=1200, noise_sigma=0.1, train_set_fraction=1.):
     y_train, y_test = y[:n_train].flatten(), y[n_train:].flatten()
 
     return x_train, x_test, y_train, y_test
+
+
+def load_spectral_data(data_path, dset):
+    h = h5py.File(os.path.join(data_path, '%s_spectralnet.hdf5' % dset))
+    keys = [k for k in sorted(h.keys()) if k.startswith('spectral')]
+    spectral_dict = dict()
+    for k in keys:
+        _, k_i, i = k.split('-')
+        l = spectral_dict.get(k_i, [])
+        l.append(h[k].value)
+        spectral_dict[k_i] = l
+
+    ret_dict = dict()
+    ret_dict["spectral"] = spectral_dict
+    ret_dict["p_train"] = h["p_train"].value
+    ret_dict["p_val"] = h["p_val"].value
+
+    return ret_dict
+
+
+def load_siamese_data(data_path, dset):
+    h = h5py.File(os.path.join(data_path, '%s_siamese.hdf5' % dset))
+    ret_dict = dict()
+    keys = sorted(h.keys())
+    for k in keys:
+        k_i, i = k.split('-')
+        l = ret_dict.get(k_i, [])
+        l.append(h[k].value)
+        ret_dict[k_i] = l
+
+    return ret_dict
 
 
 def get_mnist():

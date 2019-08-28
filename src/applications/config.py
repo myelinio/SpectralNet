@@ -143,6 +143,11 @@ def get_common_config(args):
                 {'type': 'softplus', 'size': 50},
                 {'type': 'BatchNormalization'},
             ],
+            'ae_reg': 1e-2,
+            'ae_arch': [
+                {'type': 'relu', 'size':  5},
+                {'type': 'sigmoid', 'size': 2},
+            ],
             'use_all_data': True,
         }
         params.update(cc_params)

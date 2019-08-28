@@ -7,14 +7,65 @@ import os
 import numpy as np
 import tensorflow as tf
 from keras import backend as K
+# import tensorflow.keras.backend as K
 from keras.callbacks import ModelCheckpoint
+from keras.engine.saving import model_from_json
 from keras.layers import Input, Lambda
 from keras.models import Model
 
+from . import data
 from . import costs
 from . import train
 from .layer import stack_layers
 from .util import LearningHandler, make_layer_list, train_gen, get_scale
+
+
+class AutoEncoder:
+    def __init__(self, input_dim, arch, ae_reg, json_path, weights_path):
+        self.json_path = json_path
+        self.weights_path = weights_path
+        self.inputs = {
+            'Unlabeled': Input(shape=(input_dim,), name='UnlabeledInput'),
+        }
+        if os.path.isfile(self.json_path) :
+            with open(self.json_path) as f:
+                self.model = model_from_json(f.read())
+        else:
+            self.layers = []
+            self.layers += make_layer_list(arch, 'ae', ae_reg)
+            self.outputs = stack_layers(self.inputs, self.layers)
+            self.model = Model(inputs=self.inputs['Unlabeled'], outputs=self.outputs['Unlabeled'])
+
+        if os.path.isfile(self.weights_path):
+            self.model.load_weights(self.weights_path)
+
+        self.model.compile(optimizer='adadelta', loss='binary_crossentropy')
+
+    def train(self, x_train, x_test, epochs=50, batch_size=256):
+        self.model.fit(x_train, x_train,
+                       epochs=epochs,
+                       batch_size=batch_size,
+                       shuffle=True,
+                       validation_data=(x_test, x_test),
+                       verbose=1)
+
+    def predict_embedding(self, x):
+        get_embeddings = K.function([self.model.input],
+                                    [self.model.layers[-2].output])
+
+        return data.predict_with_K_fn(get_embeddings, x)[0]
+
+    def predict_reconstruction(self, x_embedded):
+        get_reconstruction = K.function([self.model.layers[-1].input],
+                                        [self.model.output])
+        x_recon = data.predict_with_K_fn(get_reconstruction, x_embedded)[0]
+        return x_recon
+
+    def save(self):
+        model_json = self.model.to_json()
+        with open(self.json_path, "w") as json_file:
+            json_file.write(model_json)
+        self.model.save(self.weights_path)
 
 
 class SiameseNet:
@@ -87,7 +138,7 @@ class SiameseNet:
             'Orthonorm': Input(shape=input_shape, name='OrthonormInput'),
         }
         return train.predict_unlabelled(self.outputs['A'], x_unlabeled=x, inputs=inputs,
-                             batch_sizes=batch_sizes)
+                                        batch_sizes=batch_sizes)
 
     def save_model(self):
         self.net.save(self.model_weights_path)
@@ -179,7 +230,8 @@ class SpectralNet:
 
         losses = np.empty((num_epochs,))
         val_losses = np.empty((num_epochs,))
-        checkpoint = ModelCheckpoint(self.model_weights_path, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
+        checkpoint = ModelCheckpoint(self.model_weights_path, monitor='val_loss', verbose=1, save_best_only=True,
+                                     mode='min')
         callbacks_list = [checkpoint]
         # Fit the model
 

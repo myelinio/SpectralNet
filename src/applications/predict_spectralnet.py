@@ -99,10 +99,6 @@ def run_predict(params):
                                         siamese_net, train=False
                                         )
     # get final embeddings
-    input_affinity = tf.concat([siamese_net.outputs['A'], siamese_net.outputs['Labeled']], axis=0)
-    x_affinity = siamese_net.predict_unlabelled(x, batch_sizes)
-    scale = get_scale(x_affinity, batch_sizes['Unlabeled'], params['scale_nbr'])
-
     W_tensor = costs.knn_affinity(siamese_net.outputs['A'], params['n_nbrs'], scale=None, scale_nbr=params['scale_nbr'])
 
     x_spectralnet = spectral_net.predict_unlabelled(x)

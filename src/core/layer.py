@@ -96,6 +96,9 @@ def stack_layers(inputs, layers, kernel_initializer='glorot_uniform'):
         elif layer['type'] == 'softplus':
             l = Dense(layer['size'], activation='softplus', kernel_initializer=kernel_initializer,
                       kernel_regularizer=l2_reg, name=layer.get('name'))
+        elif layer['type'] == 'sigmoid':
+            l = Dense(layer['size'], activation='sigmoid', kernel_initializer=kernel_initializer,
+                      kernel_regularizer=l2_reg, name=layer.get('name'))
         elif layer['type'] == 'softmax':
             l = Dense(layer['size'], activation='softmax', kernel_initializer=kernel_initializer,
                       kernel_regularizer=l2_reg, name=layer.get('name'))
