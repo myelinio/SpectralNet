@@ -13,7 +13,6 @@ from keras.models import model_from_json
 from sklearn import preprocessing
 
 from core import pairs
-from core.networks import AutoEncoder
 
 
 def get_siamese_data(params, y_train_labeled, y_val_labeled, x_train_labeled, x_val_labeled, x_train_unlabeled,

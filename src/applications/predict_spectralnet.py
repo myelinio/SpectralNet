@@ -75,18 +75,14 @@ def run_predict(params):
         'Orthonorm': Input(shape=input_shape, name='OrthonormInput'),
     }
 
-    #
-    # LOAD SIAMESE NET
-    #
+    # Load Siamese network
     if params['affinity'] == 'siamese':
         siamese_net = networks.SiameseNet(inputs, params['arch'], params.get('siam_reg'), None, params['siamese_model_path'])
 
     else:
         siamese_net = None
 
-    #
-    # DEFINE AND LOAD SPECTRALNET
-    #
+    # Load Spectral net
     y_true = tf.placeholder(tf.float32, shape=(None, params['n_clusters']), name='y_true')
 
     spectralnet_model_path = os.path.join(params['model_path'], 'spectral_net')

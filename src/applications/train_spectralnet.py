@@ -10,16 +10,14 @@ cc: 15 min
 
 import argparse
 
-import h5py
 import keras.backend.tensorflow_backend as ktf
 import tensorflow as tf
 
 from applications.config import get_spectralnet_config
 from applications.spectralnet import run_net
-from core.data import build_spectral_data, load_spectral_data
-import os
+from core.data import load_spectral_data
 
-# PARSE ARGUMENTS
+# Parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=str, help='gpu number to use', default='')
 parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to use', default='1.0')
@@ -29,7 +27,7 @@ args = parser.parse_args()
 params = get_spectralnet_config(args)
 
 
-# LOAD DATA
+# Load data
 data = load_spectral_data(params['data_path'], args.dset)
 
 
@@ -41,5 +39,5 @@ def get_session(gpu_fraction=0.333):
 
 ktf.set_session(get_session(args.gpu_memory_fraction))
 
-# RUN EXPERIMENT
+# Run training
 x_spectralnet, y_spectralnet = run_net(data, params)
