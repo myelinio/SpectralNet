@@ -12,6 +12,7 @@ from applications.config import get_autoencoder_config
 # PARSE ARGUMENTS
 from core.data import load_spectral_data
 from core.networks import AutoEncoder
+import os
 
 # add directories in src/ to path
 # sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
@@ -47,6 +48,9 @@ x_test = data['spectral']['train_and_test'][2]
 json_path = '../pretrain_weights/ae_{}.json'.format(args.dset)
 weights_path = '{}/ae_{}.json'.format(params['model_path'], args.dset)
 # weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(args.dset)
+
+if not os.path.exists(params['model_path']):
+    os.makedirs(params['model_path'])
 
 ae = AutoEncoder(x_train.shape[1], params['ae_arch'], params.get('ae_reg'), json_path, weights_path)
 

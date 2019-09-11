@@ -1,0 +1,20 @@
+FROM tensorflow/tensorflow:latest-gpu-py3
+
+COPY requirements-gpu.txt requirements.txt
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc build-essential \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install -r  requirements.txt \
+    && apt-get purge -y --auto-remove gcc build-essential
+
+
+WORKDIR /work
+
+COPY ./src /work/
+WORKDIR /work/applications
+ENV PYTHONPATH=/work/
+ENV GPU=1
+ENV DATA_SET=mnist
+ENV GPU_MEMORY_FRACTION=1.0
+CMD python prepocess_autoencoder.py --gpu=${GPU} --dset=${DATA_SET} --gpu_memory_fraction=${GPU_MEMORY_FRACTION}

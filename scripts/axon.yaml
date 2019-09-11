@@ -31,27 +31,27 @@ spec:
           artifact: spectral-net-source
           buildLocation: /src
           dockerfile:
-            path: Dockerfile.preprocess
+            path: scripts/Dockerfile.preprocess
 
     - name: DataPrepAutoEncoder
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:1.0
-        imageBuild:
-          repositoryName: spectral-net-preprocess
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: Dockerfile.ae-preprocess
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:b749269
+#        imageBuild:
+#          repositoryName: spectral-net-preprocess
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: scripts/Dockerfile.ae-preprocess
 
     - name: TrainAutoencoderModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
-        imageBuild:
-          repositoryName: autoencoder-train-gpu
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: Dockerfile.ae-train-gpu
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:b749269
+#        imageBuild:
+#          repositoryName: autoencoder-train-gpu
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: scripts/ockerfile.ae-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -76,7 +76,7 @@ spec:
           artifact: spectral-net-source
           buildLocation: /src
           dockerfile:
-            path: Dockerfile.siamese-train-gpu
+            path: scripts/Dockerfile.siamese-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -101,7 +101,7 @@ spec:
           artifact: spectral-net-source
           buildLocation: /src
           dockerfile:
-            path: Dockerfile.train-gpu
+            path: scripts/Dockerfile.train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -127,7 +127,7 @@ spec:
           artifact: spectral-net-source
           buildLocation: /src
           dockerfile:
-            path: Dockerfile.deploy
+            path: scripts/Dockerfile.deploy
         endpointType: REST
         endpointRestType: Multipart
 

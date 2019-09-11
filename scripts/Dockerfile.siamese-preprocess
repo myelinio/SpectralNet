@@ -1,6 +1,6 @@
-FROM python:3.6-slim
+FROM tensorflow/tensorflow:latest-gpu-py3
 
-COPY requirements.txt requirements.txt
+COPY requirements-gpu.txt requirements.txt
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends gcc build-essential \
@@ -14,5 +14,7 @@ WORKDIR /work
 COPY ./src /work/
 WORKDIR /work/applications
 ENV PYTHONPATH=/work/
-
-CMD python run.py --gpu=0 --dset=mnist
+ENV GPU=1
+ENV DATA_SET=mnist
+ENV GPU_MEMORY_FRACTION=1.0
+CMD python preprocess_siamesenet.py --gpu=${GPU} --dset=${DATA_SET} --gpu_memory_fraction=${GPU_MEMORY_FRACTION}

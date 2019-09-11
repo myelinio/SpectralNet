@@ -8,5 +8,8 @@ WORKDIR /work
 COPY ./src /work/
 ENV PYTHONPATH=/work/
 WORKDIR /work/applications
-
-CMD python run.py --gpu=0 --dset=mnist
+ENV PYTHONPATH=/work/
+ENV GPU=1
+ENV DATA_SET=mnist
+ENV GPU_MEMORY_FRACTION=1.0
+CMD python run.py --gpu=${GPU} --dset=${DATA_SET} --gpu_memory_fraction=${GPU_MEMORY_FRACTION}
