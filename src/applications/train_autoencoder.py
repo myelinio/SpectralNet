@@ -54,12 +54,14 @@ if not os.path.exists(params['model_path']):
 
 ae = AutoEncoder(x_train.shape[1], params['ae_arch'], params.get('ae_reg'), json_path, weights_path)
 
+ae.train(x_train, x_test, epochs=10)
+
 reconstruction_mse = get_reconstruction_mse(x_train)
 print("train initial reconstruction error:", np.mean(reconstruction_mse))
 reconstruction_mse = get_reconstruction_mse(x_test)
 print("test initial reconstruction error:", np.mean(reconstruction_mse))
 
-ae.train(x_train, x_test, epochs=10)
+ae.train(x_train, x_test, epochs=params['spec_ae'])
 ae.save()
 
 reconstruction_mse = get_reconstruction_mse(x_train)
