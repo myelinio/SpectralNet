@@ -5,3 +5,5 @@ munkres
 annoy
 h5py
 numpy
+modeldb
+myelin

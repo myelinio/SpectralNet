@@ -1,0 +1,12 @@
+FROM python:3.6-slim
+
+COPY requirements.txt requirements.txt
+RUN pip install -r  requirements.txt
+
+WORKDIR /work
+
+COPY ./src /work/
+ENV PYTHONPATH=/work/
+WORKDIR /work/applications
+
+CMD python prepocess_spectralnet.py --gpu=0 --dset=mnist

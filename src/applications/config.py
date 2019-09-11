@@ -1,6 +1,8 @@
 import os
 from collections import defaultdict
 
+import myelin.admin
+
 
 def get_spectralnet_config(args):
     params = get_common_config(args)
@@ -14,11 +16,16 @@ def get_siamese_config(args):
     return params
 
 
-def get_common_config(args):
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
+def get_autoencoder_config(args):
+    params = get_common_config(args)
+    return params
 
-    model_path = os.environ.get('MODEL_PATH') or '/tmp/model/'
-    data_path = os.environ.get('DATA_PATH') or '/tmp/data/'
+
+def get_common_config(args):
+    model_path = myelin.admin.model_path(default_value='/tmp/model/')
+    data_path = myelin.admin.data_path(default_value='/tmp/data/')
+
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
 
     # SELECT GPU
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
@@ -145,7 +152,7 @@ def get_common_config(args):
             ],
             'ae_reg': 1e-2,
             'ae_arch': [
-                {'type': 'relu', 'size':  5},
+                {'type': 'relu', 'size': 5},
                 {'type': 'sigmoid', 'size': 2},
             ],
             'use_all_data': True,

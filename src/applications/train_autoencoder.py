@@ -2,12 +2,13 @@
 """
 
 import argparse
-from keras import backend as K
+
 # import tensorflow.keras.backend as K
 import numpy as np
 import tensorflow as tf
+from keras import backend as K
 
-from applications.config import get_siamese_config
+from applications.config import get_autoencoder_config
 # PARSE ARGUMENTS
 from core.data import load_spectral_data
 from core.networks import AutoEncoder
@@ -21,7 +22,7 @@ parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to
 parser.add_argument('--dset', type=str, help='datasett to use', default='mnist')
 args = parser.parse_args()
 
-params = get_siamese_config(args)
+params = get_autoencoder_config(args)
 
 data = load_spectral_data(params['data_path'], args.dset)
 
@@ -44,13 +45,51 @@ K.set_session(get_session(args.gpu_memory_fraction))
 x_train = data['spectral']['train_and_test'][0]
 x_test = data['spectral']['train_and_test'][2]
 json_path = '../pretrain_weights/ae_{}.json'.format(args.dset)
-weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(args.dset)
+weights_path = '{}/ae_{}.json'.format(params['model_path'], args.dset)
+# weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(args.dset)
 
 ae = AutoEncoder(x_train.shape[1], params['ae_arch'], params.get('ae_reg'), json_path, weights_path)
-ae.train(x_train, x_test, epochs=200)
+
+reconstruction_mse = get_reconstruction_mse(x_train)
+print("train initial reconstruction error:", np.mean(reconstruction_mse))
+reconstruction_mse = get_reconstruction_mse(x_test)
+print("test initial reconstruction error:", np.mean(reconstruction_mse))
+
+ae.train(x_train, x_test, epochs=10)
 ae.save()
 
 reconstruction_mse = get_reconstruction_mse(x_train)
-print("train total reconstruction error:", np.mean(reconstruction_mse))
+print("train final reconstruction error:", np.mean(reconstruction_mse))
 reconstruction_mse = get_reconstruction_mse(x_test)
-print("test total reconstruction error:", np.mean(reconstruction_mse))
+print("test final reconstruction error:", np.mean(reconstruction_mse))
+
+# from modeldb.basic.Structs import Model, ModelConfig, ModelMetrics, Dataset
+# from modeldb.basic.ModelDbSyncerBase import Syncer
+#
+# # Create a syncer using a convenience API
+# syncer_obj = Syncer.create_syncer("Spectral Autoencoder %s" % args.dset,
+#                                   "test_user",
+#                                   "Autoencoder %s" % args.dset,
+#                                   host="localhost")
+# # create Datasets by specifying their filepaths and optional metadata
+# # associate a tag (key) for each Dataset (value) and synch them
+# datasets = {
+#     "train": Dataset("/path/to/train", {"num_cols": 15, "dist": "random"}),
+#     "test": Dataset("/path/to/test", {"num_cols": 15, "dist": "gaussian"})
+# }
+# syncer_obj.sync_datasets(datasets)
+#
+# # create the Model, ModelConfig, and ModelMetrics instances and synch them
+# for i in range(10):
+#     syncer_obj = Syncer.create_syncer("Spectral Autoencoder %s" % args.dset,
+#                                       "test_user",
+#                                       "Autoencoder %s" % args.dset,
+#                                       host="localhost")
+#
+#     mdb_model1 = Model(model_type="model_obj", model="Spectral Autoencoder", path=params['model_path'], tag="autoencoder:spectralnet")
+#     model_config1 = ModelConfig(model_type="model_obj", config={}, tag="autoencoder:spectralnet")
+#     model_metrics1 = ModelMetrics({"rmse": 1 + np.random.uniform(0, 1)}, tag="autoencoder:spectralnet")
+#     syncer_obj.sync_model("train", model_config1, mdb_model1)
+#     syncer_obj.sync_metrics("test", mdb_model1, model_metrics1)
+#     # actually write it
+#     syncer_obj.sync()

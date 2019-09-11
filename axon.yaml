@@ -33,6 +33,31 @@ spec:
           dockerfile:
             path: Dockerfile.preprocess
 
+    - name: TrainAutoencoderModel
+      train:
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
+        imageBuild:
+          repositoryName: autoencoder-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: Dockerfile.ae-train-gpu
+        env:
+          - name: LD_LIBRARY_PATH
+            value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
+          - name: GPU
+            value: "0"
+          - name: GPU_MEMORY_FRACTION
+            value: "0.50"
+          - name: DATA_SET
+            value: mnist
+
+        nodeSelector:
+          cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+
     - name: TrainSiameseModel
       train:
 #        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
@@ -97,10 +122,12 @@ spec:
         endpointRestType: Multipart
 
   sensors:
-    - name: TrainSiameseModelOnStart
+    - name: TrainAutoencoderModelOnStart
       tasks:
+        - resourceExecutor:
+            task: DataPrep
         - trainer:
-            task: TrainSiameseModel
+            task: TrainAutoencoderModel
 
 
 #    - name: TrainSpectralNetModelOnStart
