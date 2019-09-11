@@ -52,6 +52,9 @@ weights_path = '{}/ae_{}.json'.format(params['model_path'], args.dset)
 if not os.path.exists(params['model_path']):
     os.makedirs(params['model_path'])
 
+x_train = x_train.reshape(-1, np.prod(x_train.shape[1:]))
+x_test = x_test.reshape(-1, np.prod(x_test.shape[1:]))
+
 ae = AutoEncoder(x_train.shape[1], params['ae_arch'], params.get('ae_reg'), json_path, weights_path)
 
 ae.train(x_train, x_test, epochs=10)

@@ -45,13 +45,13 @@ spec:
 
     - name: TrainAutoencoderModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:b749269
-#        imageBuild:
-#          repositoryName: autoencoder-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/ockerfile.ae-train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:b749269
+        imageBuild:
+          repositoryName: autoencoder-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.ae-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
