@@ -18,6 +18,7 @@ def get_siamese_config(args):
 
 def get_autoencoder_config(args):
     params = get_common_config(args)
+    params['use_code_space'] = False
     return params
 
 

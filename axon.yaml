@@ -33,6 +33,16 @@ spec:
           dockerfile:
             path: Dockerfile.preprocess
 
+    - name: DataPrepAutoEncoder
+      container:
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:1.0
+        imageBuild:
+          repositoryName: spectral-net-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: Dockerfile.ae-preprocess
+
     - name: TrainAutoencoderModel
       train:
 #        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
@@ -125,7 +135,7 @@ spec:
     - name: TrainAutoencoderModelOnStart
       tasks:
         - resourceExecutor:
-            task: DataPrep
+            task: DataPrepAutoEncoder
         - trainer:
             task: TrainAutoencoderModel
 
