@@ -35,17 +35,17 @@ spec:
 
     - name: DataPrepAutoEncoder
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:b749269
-#        imageBuild:
-#          repositoryName: spectral-net-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.ae-preprocess
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:b749269
+        imageBuild:
+          repositoryName: spectral-net-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.ae-preprocess
 
     - name: TrainAutoencoderModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:b749269
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:ff95197
         imageBuild:
           repositoryName: autoencoder-train-gpu
           artifact: spectral-net-source
@@ -83,7 +83,7 @@ spec:
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
-            value: "0.10"
+            value: "0.50"
           - name: DATA_SET
             value: mnist
 
@@ -108,7 +108,7 @@ spec:
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
-            value: "0.10"
+            value: "0.5 0"
           - name: DATA_SET
             value: mnist
 

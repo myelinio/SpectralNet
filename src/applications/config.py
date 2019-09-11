@@ -24,7 +24,7 @@ def get_autoencoder_config(args):
 
 def get_common_config(args):
     model_path = myelin.admin.model_path(default_value='/tmp/model/')
-    data_path = myelin.admin.data_path(default_value='/tmp/data/')
+    data_path = myelin.admin.task("spectral-net", "DataPrepAutoEncoder", "myelin").data_path
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
 
@@ -59,7 +59,7 @@ def get_common_config(args):
 
             'siam_ne': 400,  # number of training epochs for siamese net
             'spec_ne': 400,  # number of training epochs for spectral net
-            'spec_ae': 300,
+            'spec_ae': 50,
             'siam_lr': 1e-3,  # initial learning rate for siamese net
             'spec_lr': 1e-3,  # initial learning rate for spectral net
             'siam_patience': 10,  # early stopping patience for siamese net
@@ -92,7 +92,7 @@ def get_common_config(args):
             'siam_k': 100,
             'siam_ne': 20,
             'spec_ne': 300,
-            'spec_ae': 300,
+            'spec_ae': 50,
             'siam_lr': 1e-3,
             'spec_lr': 5e-5,
             'siam_patience': 1,
@@ -128,7 +128,7 @@ def get_common_config(args):
             'siam_k': 2,  # threshold where, for all k <= siam_k closest neighbors to x_i, (x_i, k) is considered
             # a 'positive' pair by siamese net
             'siam_ne': 20,
-            'spec_ae': 300,
+            'spec_ae': 50,
             'siam_lr': 1e-3,
             'siam_patience': 1,
             'siam_drop': 0.1,
@@ -164,7 +164,7 @@ def get_common_config(args):
         params.update(cc_params)
     elif args.dset == 'cc_semisup':
         cc_semisup_params = {
-            'spec_ae': 300,
+            'spec_ae': 50,
             'dset': 'cc',  # dataset affects data loading in get_data() so we must set back to 'cc'
             # data generation parameters
             'train_set_fraction': .8,
