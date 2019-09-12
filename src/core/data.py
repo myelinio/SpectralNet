@@ -265,8 +265,8 @@ def embed_data(x, params, dset):
         dset = 'reuters10k'
 
     json_path = '../pretrain_weights/ae_{}.json'.format(dset)
-    # weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(dset)
-    weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
+    weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(dset)
+    # weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
 
     with open(json_path) as f:
         pt_ae = model_from_json(f.read())
@@ -283,8 +283,7 @@ def embed_data(x, params, dset):
     print("Calling predict_with_K_fn")
     x_recon = predict_with_K_fn(get_reconstruction, x_embedded)[0]
     del pt_ae
-    print("Finished Calling predict_with_K_fn")
-
+    print("Finished Embedding data into code space")
 
     # ae = AutoEncoder(dset)
     # x_embedded = ae.predict_embedding(x)
