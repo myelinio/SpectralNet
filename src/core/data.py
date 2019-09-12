@@ -125,6 +125,7 @@ def get_base_data(params, data=None):
 
     # get data if not provided
     if data is None:
+        print("Loading data")
         x_train, x_test, y_train, y_test = load_data(params)
     else:
         print(
@@ -146,6 +147,8 @@ def get_base_data(params, data=None):
     else:
         raise ValueError("val_set_fraction is invalid! must be in range (0, 1]")
 
+    print("Finsihed Loading data")
+
     # shuffle training and test data separately into themselves and concatenate
     p = np.concatenate([np.random.permutation(len(x_train)), len(x_train) + np.random.permutation(len(x_test))], axis=0)
 
@@ -166,7 +169,7 @@ def get_base_data(params, data=None):
         val_split = (1, 0)
     (x_val_unlabeled, y_val_unlabeled, p_val_unlabeled), (x_val_labeled, y_val_labeled, _) = split_data(x_val, y_val,
                                                                                                         val_split)
-
+    print("Finsihed splitting data")
     # embed data in code space, if necessary
     all_data = [x_train, x_val, x_test, x_train_unlabeled, x_train_labeled, x_val_unlabeled, x_val_labeled]
     if params.get('use_code_space'):
