@@ -25,23 +25,23 @@ spec:
   tasks:
     - name: DataPrep
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:6593a06
-        imageBuild:
-          repositoryName: data-preprocess
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: scripts/Dockerfile.data-preprocess
-
-    - name: DataPrepAutoEncoder
-      container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:6593a06
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:44a33d8
 #        imageBuild:
-#          repositoryName: autoencoder-preprocess
+#          repositoryName: data-preprocess
 #          artifact: spectral-net-source
 #          buildLocation: /src
 #          dockerfile:
-#            path: scripts/Dockerfile.ae-preprocess
+#            path: scripts/Dockerfile.data-preprocess
+
+    - name: DataPrepAutoEncoder
+      container:
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:6593a06
+        imageBuild:
+          repositoryName: autoencoder-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.ae-preprocess
 
     - name: TrainAutoencoderModel
       train:
@@ -196,8 +196,6 @@ spec:
             task: TrainAutoencoderModel
         - trainer:
             task: TrainSiameseModel
-#        - resourceExecutor:
-#            task: DataPrepSpectralNet
         - trainer:
             task: TrainSpectralNetModel
 

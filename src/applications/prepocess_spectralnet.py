@@ -17,7 +17,7 @@ parser.add_argument('--dset', type=str, help='datasett to use', default='mnist')
 args = parser.parse_args()
 
 params = get_spectralnet_config(args)
-data_path = os.path.join(params['data_path'], '%s_data.hdf5' % args.dset)
+data_path = os.path.join(params['base_data_path'], '%s_data.hdf5' % args.dset)
 file = open(data_path, 'rb')
 data = pickle.load(file)
 file.close()
