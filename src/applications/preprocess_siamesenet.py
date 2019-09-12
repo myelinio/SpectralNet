@@ -3,7 +3,7 @@
 
 import argparse
 from applications.config import get_siamese_config
-from core.data import build_siamese_data
+from core.data import build_siamese_data, load_data
 import os
 import h5py
 
@@ -16,8 +16,11 @@ args = parser.parse_args()
 
 params = get_siamese_config(args)
 
+print("Loading data")
+data = load_data(params)
+print("Finsihed Loading data")
 # LOAD DATA
-data = build_siamese_data(params)
+data = build_siamese_data(params, data)
 
 data_path = os.path.join(params['data_path'], '%s_siamese.hdf5' % args.dset)
 if not os.path.exists(params['data_path']):
