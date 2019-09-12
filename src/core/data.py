@@ -255,6 +255,7 @@ def embed_data(x, params, dset):
     Convenience function: embeds x into the code space using the corresponding
     autoencoder (specified by dset).
     """
+    print("Embedding data into code space")
     if not len(x):
         return np.zeros(shape=(0, 10))
     if dset == 'reuters':
@@ -276,8 +277,11 @@ def embed_data(x, params, dset):
     get_reconstruction = K.function([pt_ae.layers[4].input],
                                     [pt_ae.output])
     x_embedded = predict_with_K_fn(get_embeddings, x)[0]
+    print("Calling predict_with_K_fn")
     x_recon = predict_with_K_fn(get_reconstruction, x_embedded)[0]
     del pt_ae
+    print("Finished Calling predict_with_K_fn")
+
 
     # ae = AutoEncoder(dset)
     # x_embedded = ae.predict_embedding(x)

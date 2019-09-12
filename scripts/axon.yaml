@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store
+      name: axon-store2
     spec:
       storageClassName: standard
       accessModes: ["ReadWriteOnce"]
@@ -35,13 +35,13 @@ spec:
 
     - name: TrainAutoencoderModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:118288d
-        imageBuild:
-          repositoryName: autoencoder-train-gpu
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: scripts/Dockerfile.ae-train-gpu
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:f470ca8
+#        imageBuild:
+#          repositoryName: autoencoder-train-gpu
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: scripts/Dockerfile.ae-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -60,7 +60,7 @@ spec:
 
     - name: DataPrepSiamese
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:359ac85
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:f470ca8
         imageBuild:
           repositoryName: siamese-preprocess
           artifact: spectral-net-source
