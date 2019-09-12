@@ -7,8 +7,8 @@ import sys
 import numpy as np
 import sklearn.metrics
 import tensorflow as tf
-# from keras import backend as K
-import tensorflow.keras.backend as K
+from keras import backend as K
+# import tensorflow.keras.backend as K
 from keras.callbacks import Callback
 from munkres import Munkres
 from sklearn.neighbors import NearestNeighbors
