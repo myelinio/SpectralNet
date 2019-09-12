@@ -6,8 +6,8 @@ import os
 
 import h5py
 import numpy as np
-# from keras import backend as K
-import tensorflow.keras.backend as K
+from keras import backend as K
+# import tensorflow.keras.backend as K
 from keras.datasets import mnist
 from keras.models import model_from_json
 from sklearn import preprocessing

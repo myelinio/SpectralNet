@@ -60,7 +60,7 @@ spec:
 
     - name: DataPrepSiamese
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:118288d
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:359ac85
         imageBuild:
           repositoryName: siamese-preprocess
           artifact: spectral-net-source

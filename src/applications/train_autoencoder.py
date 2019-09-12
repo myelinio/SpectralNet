@@ -57,7 +57,7 @@ x_test = x_test.reshape(-1, np.prod(x_test.shape[1:]))
 
 ae = AutoEncoder(x_train.shape[1], params['ae_arch'], params.get('ae_reg'), json_path, weights_path)
 
-ae.train(x_train, x_test, epochs=10)
+ae.train(x_train, x_test, epochs=1)
 
 reconstruction_mse = get_reconstruction_mse(x_train)
 print("train initial reconstruction error:", np.mean(reconstruction_mse))
