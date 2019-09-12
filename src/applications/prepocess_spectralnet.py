@@ -1,11 +1,7 @@
 """
 """
 
-# add directories in src/ to path
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
-
 import argparse
-
 from applications.config import get_spectralnet_config
 from core.data import build_spectral_data
 import os
@@ -16,8 +12,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=str, help='gpu number to use', default='')
 parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to use', default='1.0')
 parser.add_argument('--dset', type=str, help='datasett to use', default='mnist')
-
 args = parser.parse_args()
+
 params = get_spectralnet_config(args)
 
 # LOAD DATA

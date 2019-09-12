@@ -88,6 +88,7 @@ def build_siamese_data(params, data=None):
         'train_unlabeled_and_labeled'   - (pairs_train_unlabeled, dist_train_unlabeled, pairs_train_labeled, dist_train_labeled)
         'val_unlabeled_and_labeled'     - (pairs_val_unlabeled, dist_val_unlabeled, pairs_val_labeled, dist_val_labeled)¬
     """
+    print("Getting base data")
     y_train, x_train, p_train, \
     y_test, x_test, \
     y_val, x_val, p_val, \
@@ -96,6 +97,8 @@ def build_siamese_data(params, data=None):
     y_train_unlabeled, x_train_unlabeled, \
     y_val_unlabeled, x_val_unlabeled, \
     train_val_split = get_base_data(params, data)
+
+    print("Getting siamese data")
 
     return get_siamese_data(params, y_train_labeled, y_val_labeled, x_train_labeled, x_val_labeled,
                             x_train_unlabeled, x_val_unlabeled, p_train, p_val, train_val_split)
