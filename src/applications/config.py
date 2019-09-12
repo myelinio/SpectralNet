@@ -10,7 +10,7 @@ def get_spectralnet_config(args):
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     base_data_task = myelin.admin.task(axon="spectral-net", task_name="DataPrep", namespace="myelin")
     print(base_data_task)
-    params['base_data_path'] = base_data_task.model_path if base_data_task else '/tmp/data/'
+    params['base_data_path'] = base_data_task.data_path if base_data_task else '/tmp/data/'
 
     model_path = myelin.admin.model_path(default_value='/tmp/model/spectralnet/')
     params['model_path'] = model_path
@@ -31,7 +31,7 @@ def get_siamese_config(args):
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     base_data_task = myelin.admin.task(axon="spectral-net", task_name="DataPrep", namespace="myelin")
     print(base_data_task)
-    params['base_data_path'] = base_data_task.model_path if base_data_task else '/tmp/data/'
+    params['base_data_path'] = base_data_task.data_path if base_data_task else '/tmp/data/'
 
     model_path = myelin.admin.model_path(default_value='/tmp/model/siamese/')
     params['model_path'] = model_path
@@ -48,7 +48,7 @@ def get_autoencoder_config(args):
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     base_data_task = myelin.admin.task(axon="spectral-net", task_name="DataPrep", namespace="myelin")
     print(base_data_task)
-    params['base_data_path'] = base_data_task.model_path if base_data_task else '/tmp/data/'
+    params['base_data_path'] = base_data_task.data_path if base_data_task else '/tmp/data/'
 
     model_path = myelin.admin.model_path(default_value='/tmp/model/ae/')
     params['model_path'] = model_path
