@@ -28,6 +28,9 @@ params = get_siamese_config(args)
 data = build_siamese_data(params)
 
 data_path = os.path.join(params['data_path'], '%s_siamese.hdf5' % args.dset)
+if not os.path.exists(params['data_path']):
+    os.makedirs(params['data_path'])
+
 if os.path.exists(data_path):
     os.remove(data_path)
 

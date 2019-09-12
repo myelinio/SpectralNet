@@ -6,25 +6,41 @@ import myelin.admin
 
 def get_spectralnet_config(args):
     params = get_common_config(args)
-    params['siamese_model_path'] = '/tmp/siamese_net/'
+
+    model_path = myelin.admin.model_path(default_value='/tmp/model/spectralnet/')
+    params['model_path'] = model_path
+
+    siamese_model_task = myelin.admin.task(axon="spectral-net", task_name="DataPrepAutoEncoder", namespace="myelin")
+    params['siamese_model_path'] = siamese_model_task.model_path if siamese_model_task else '/tmp/model/siamese/'
+
+    ae_model_task = myelin.admin.task(axon="spectral-net", task_name="TrainAutoencoderModel", namespace="myelin")
+    params['ae_model_path'] = ae_model_task.model_path if ae_model_task else '/tmp/model/ae/'
 
     return params
 
 
 def get_siamese_config(args):
     params = get_common_config(args)
+    model_path = myelin.admin.model_path(default_value='/tmp/model/siamese/')
+    params['model_path'] = model_path
+
+    ae_model_task = myelin.admin.task(axon="spectral-net", task_name="TrainAutoencoderModel", namespace="myelin")
+    params['ae_model_path'] = ae_model_task.model_path if ae_model_task else '/tmp/model/ae/'
+
     return params
 
 
 def get_autoencoder_config(args):
     params = get_common_config(args)
+    model_path = myelin.admin.model_path(default_value='/tmp/model/ae/')
+    params['model_path'] = model_path
+
     params['use_code_space'] = False
     return params
 
 
 def get_common_config(args):
-    model_path = myelin.admin.model_path(default_value='/tmp/model/')
-    data_path = myelin.admin.task("spectral-net", "DataPrepAutoEncoder", "myelin").data_path
+    data_path = myelin.admin.data_path(default_value='/tmp/data/')
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
 
@@ -111,7 +127,6 @@ def get_common_config(args):
             ],
             'use_approx': True,
             'use_all_data': True,
-            'data_path': data_path,
         }
         params.update(reuters_params)
     elif args.dset == 'cc':
@@ -122,7 +137,7 @@ def get_common_config(args):
             'n': 1500,  # number of total points in dataset
             # training parameters
             'n_clusters': 2,
-            'use_code_space': False,
+            'use_code_space': True,
             'affinity': 'siamese',
 
             'siam_k': 2,  # threshold where, for all k <= siam_k closest neighbors to x_i, (x_i, k) is considered
@@ -198,7 +213,6 @@ def get_common_config(args):
         }
         params.update(cc_semisup_params)
 
-    params['model_path'] = model_path
     params['data_path'] = data_path
 
     return params

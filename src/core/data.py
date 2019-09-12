@@ -171,7 +171,7 @@ def get_base_data(params, data=None):
     all_data = [x_train, x_val, x_test, x_train_unlabeled, x_train_labeled, x_val_unlabeled, x_val_labeled]
     if params.get('use_code_space'):
         for i, d in enumerate(all_data):
-            all_data[i] = embed_data(d, dset=params['dset'])
+            all_data[i] = embed_data(d, params, dset=params['dset'])
     else:
         # otherwise just flatten it
         for i, d in enumerate(all_data):
@@ -250,7 +250,7 @@ def load_data(params):
     return x_train, x_test, y_train, y_test
 
 
-def embed_data(x, dset):
+def embed_data(x, params, dset):
     """
     Convenience function: embeds x into the code space using the corresponding
     autoencoder (specified by dset).
@@ -261,7 +261,8 @@ def embed_data(x, dset):
         dset = 'reuters10k'
 
     json_path = '../pretrain_weights/ae_{}.json'.format(dset)
-    weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(dset)
+    # weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(dset)
+    weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
 
     with open(json_path) as f:
         pt_ae = model_from_json(f.read())

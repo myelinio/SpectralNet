@@ -24,6 +24,9 @@ params = get_spectralnet_config(args)
 data = build_spectral_data(params)
 
 data_path = os.path.join(params['data_path'], '%s_spectralnet.hdf5' % args.dset)
+if not os.path.exists(params['data_path']):
+    os.makedirs(params['data_path'])
+
 if os.path.exists(data_path):
     os.remove(data_path)
 
