@@ -23,16 +23,6 @@ spec:
         requests:
           storage: 1Gi
   tasks:
-    - name: DataPrepSpectralNet
-      container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:1.0
-        imageBuild:
-          repositoryName: spectral-net-preprocess
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: scripts/Dockerfile.spectral-preprocess
-
     - name: DataPrepAutoEncoder
       container:
         image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:118288d
@@ -77,7 +67,21 @@ spec:
           buildLocation: /src
           dockerfile:
             path: scripts/Dockerfile.siamese-preprocess
+        env:
+          - name: LD_LIBRARY_PATH
+            value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
+          - name: GPU
+            value: "0"
+          - name: GPU_MEMORY_FRACTION
+            value: "0.5 0"
+          - name: DATA_SET
+            value: mnist
 
+        nodeSelector:
+          cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
 
     - name: TrainSiameseModel
       train:
@@ -104,6 +108,31 @@ spec:
           limits:
             nvidia.com/gpu: 1
 
+    - name: DataPrepSpectralNet
+      container:
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:118288d
+        imageBuild:
+          repositoryName: siamese-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.spectral-preprocess
+        env:
+          - name: LD_LIBRARY_PATH
+            value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
+          - name: GPU
+            value: "0"
+          - name: GPU_MEMORY_FRACTION
+            value: "0.5 0"
+          - name: DATA_SET
+            value: mnist
+
+        nodeSelector:
+          cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+
     - name: TrainSpectralNetModel
       train:
 #        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
@@ -112,7 +141,7 @@ spec:
           artifact: spectral-net-source
           buildLocation: /src
           dockerfile:
-            path: scripts/Dockerfile.train-gpu
+            path: scripts/Dockerfile.spectral-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -154,9 +183,9 @@ spec:
         - trainer:
             task: TrainSiameseModel
         - resourceExecutor:
-            task: DataPrep
+            task: DataPrepSpectralNet
         - trainer:
-            task: TrainSiameseModel
+            task: TrainSpectralNetModel
 
 
 #    - name: TrainSpectralNetModelOnStart
