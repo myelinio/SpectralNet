@@ -2,6 +2,8 @@
 """
 
 import argparse
+import pickle
+
 from applications.config import get_siamese_config
 from core.data import build_siamese_data, load_data
 import os
@@ -16,9 +18,11 @@ args = parser.parse_args()
 
 params = get_siamese_config(args)
 
-print("Loading data")
-data = load_data(params)
-print("Finsihed Loading data")
+data_path = os.path.join(params['data_path'], '%s_data.hdf5' % args.dset)
+file = open(data_path, 'rb')
+data = pickle.load(file)
+file.close()
+
 # LOAD DATA
 data = build_siamese_data(params, data)
 

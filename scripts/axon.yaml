@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store9
+      name: axon-store1
     spec:
       storageClassName: standard
       accessModes: ["ReadWriteOnce"]
@@ -23,6 +23,16 @@ spec:
         requests:
           storage: 5Gi
   tasks:
+    - name: DataPrep
+      container:
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:6593a06
+        imageBuild:
+          repositoryName: data-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.data-preprocess
+
     - name: DataPrepAutoEncoder
       container:
         image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:6593a06
@@ -175,13 +185,15 @@ spec:
     - name: TrainAutoencoderModelOnStart
       tasks:
         - resourceExecutor:
+            task: DataPrep
+        - resourceExecutor:
             task: DataPrepAutoEncoder
-        - trainer:
-            task: TrainAutoencoderModel
         - resourceExecutor:
             task: DataPrepSpectralNet
         - resourceExecutor:
             task: DataPrepSiamese
+        - trainer:
+            task: TrainAutoencoderModel
         - trainer:
             task: TrainSiameseModel
 #        - resourceExecutor:

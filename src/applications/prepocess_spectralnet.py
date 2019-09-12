@@ -2,6 +2,8 @@
 """
 
 import argparse
+import pickle
+
 from applications.config import get_spectralnet_config
 from core.data import build_spectral_data
 import os
@@ -15,9 +17,13 @@ parser.add_argument('--dset', type=str, help='datasett to use', default='mnist')
 args = parser.parse_args()
 
 params = get_spectralnet_config(args)
+data_path = os.path.join(params['data_path'], '%s_data.hdf5' % args.dset)
+file = open(data_path, 'rb')
+data = pickle.load(file)
+file.close()
 
 # LOAD DATA
-data = build_spectral_data(params)
+data = build_spectral_data(params, data)
 
 data_path = os.path.join(params['data_path'], '%s_spectralnet.hdf5' % args.dset)
 if not os.path.exists(params['data_path']):

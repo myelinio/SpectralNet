@@ -6,6 +6,8 @@ import myelin.admin
 
 def get_spectralnet_config(args):
     params = get_common_config(args)
+    # SELECT GPU
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
     model_path = myelin.admin.model_path(default_value='/tmp/model/spectralnet/')
     params['model_path'] = model_path
@@ -21,6 +23,9 @@ def get_spectralnet_config(args):
 
 def get_siamese_config(args):
     params = get_common_config(args)
+    # SELECT GPU
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+
     model_path = myelin.admin.model_path(default_value='/tmp/model/siamese/')
     params['model_path'] = model_path
 
@@ -32,6 +37,9 @@ def get_siamese_config(args):
 
 def get_autoencoder_config(args):
     params = get_common_config(args)
+    # SELECT GPU
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+
     model_path = myelin.admin.model_path(default_value='/tmp/model/ae/')
     params['model_path'] = model_path
 
@@ -43,9 +51,6 @@ def get_common_config(args):
     data_path = myelin.admin.data_path(default_value='/tmp/data/')
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
-
-    # SELECT GPU
-    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
     params = defaultdict(lambda: None)
 
