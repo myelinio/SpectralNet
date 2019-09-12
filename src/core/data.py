@@ -130,6 +130,7 @@ def get_base_data(params, data=None):
     if data is None:
         print("Loading data")
         x_train, x_test, y_train, y_test = load_data(params)
+        print("Finsihed Loading data")
     else:
         print(
             "WARNING: Using data provided in arguments. Must be tuple or array of format (x_train, x_test, y_train, y_test)")
@@ -150,7 +151,7 @@ def get_base_data(params, data=None):
     else:
         raise ValueError("val_set_fraction is invalid! must be in range (0, 1]")
 
-    print("Finsihed Loading data")
+    print("Started splitting data")
 
     # shuffle training and test data separately into themselves and concatenate
     p = np.concatenate([np.random.permutation(len(x_train)), len(x_train) + np.random.permutation(len(x_test))], axis=0)
@@ -176,10 +177,12 @@ def get_base_data(params, data=None):
     # embed data in code space, if necessary
     all_data = [x_train, x_val, x_test, x_train_unlabeled, x_train_labeled, x_val_unlabeled, x_val_labeled]
     if params.get('use_code_space'):
+        print("Started embedding data")
         for i, d in enumerate(all_data):
             all_data[i] = embed_data(d, params, dset=params['dset'])
     else:
         # otherwise just flatten it
+        print("Started flattening data")
         for i, d in enumerate(all_data):
             all_data[i] = all_data[i].reshape((-1, np.prod(all_data[i].shape[1:])))
     return y_train, x_train, p_train, \

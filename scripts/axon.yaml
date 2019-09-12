@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store7
+      name: axon-store8
     spec:
       storageClassName: standard
       accessModes: ["ReadWriteOnce"]
@@ -178,12 +178,14 @@ spec:
             task: DataPrepAutoEncoder
         - trainer:
             task: TrainAutoencoderModel
-#        - resourceExecutor:
-#            task: DataPrepSiamese
-#        - trainer:
-#            task: TrainSiameseModel
         - resourceExecutor:
             task: DataPrepSpectralNet
+        - resourceExecutor:
+            task: DataPrepSiamese
+        - trainer:
+            task: TrainSiameseModel
+#        - resourceExecutor:
+#            task: DataPrepSpectralNet
         - trainer:
             task: TrainSpectralNetModel
 
