@@ -5,7 +5,7 @@ import argparse
 import pickle
 
 from applications.config import get_siamese_config
-from core.data import build_siamese_data, load_data
+from core.data import build_siamese_data
 import os
 import h5py
 
@@ -13,7 +13,7 @@ import h5py
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=str, help='gpu number to use', default='')
 parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to use', default='1.0')
-parser.add_argument('--dset', type=str, help='datasett to use', default='mnist')
+parser.add_argument('--dset', type=str, help='dataset to use', default='mnist')
 args = parser.parse_args()
 
 params = get_siamese_config(args)

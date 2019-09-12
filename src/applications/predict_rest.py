@@ -179,7 +179,7 @@ def parse_args():
     parser.add_argument('--port', default=5000, type=int)
     parser.add_argument('--gpu', type=str, help='gpu number to use', default='')
     parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to use', default='1.0')
-    parser.add_argument('--dset', type=str, help='datasett to use', default='mnist')
+    parser.add_argument('--dset', type=str, help='dataset to use', default='mnist')
     return parser.parse_args()
 
 
