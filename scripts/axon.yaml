@@ -35,13 +35,13 @@ spec:
 
     - name: TrainAutoencoderModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:118288d
-#        imageBuild:
-#          repositoryName: autoencoder-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.ae-train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:118288d
+        imageBuild:
+          repositoryName: autoencoder-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.ae-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -73,7 +73,7 @@ spec:
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
-            value: "0.5 0"
+            value: "0.5"
           - name: DATA_SET
             value: mnist
 
@@ -123,7 +123,7 @@ spec:
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
-            value: "0.5 0"
+            value: "0.5"
           - name: DATA_SET
             value: mnist
 
@@ -148,7 +148,7 @@ spec:
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
-            value: "0.5 0"
+            value: "0.5"
           - name: DATA_SET
             value: mnist
 
