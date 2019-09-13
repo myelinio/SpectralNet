@@ -48,7 +48,7 @@ def Orthonorm(X, name=None):
     # create variable that holds this matrix
     ortho_weights_store = K.variable(np.zeros((d, d)))
     # create op that saves matrix into variable
-    ortho_weights_update = K.tf.assign(ortho_weights_store, ortho_weights, name='ortho_weights_update')
+    ortho_weights_update = tf.assign(ortho_weights_store, ortho_weights, name='ortho_weights_update')
     # switch between stored and calculated weights based on training or validation
 
     def f(t):

@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store2
+      name: axon-store
     spec:
       storageClassName: standard
       accessModes: ["ReadWriteOnce"]
@@ -25,13 +25,13 @@ spec:
   tasks:
     - name: DataPrep
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:e6ea6a5
-        imageBuild:
-          repositoryName: data-preprocess
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: scripts/Dockerfile.data-preprocess
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:244db3c
+#        imageBuild:
+#          repositoryName: data-preprocess
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: scripts/Dockerfile.data-preprocess
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -44,13 +44,13 @@ spec:
 
     - name: DataPrepAutoEncoder
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:7af2350
-        imageBuild:
-          repositoryName: autoencoder-preprocess
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: scripts/Dockerfile.ae-preprocess
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:244db3c
+#        imageBuild:
+#          repositoryName: autoencoder-preprocess
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: scripts/Dockerfile.ae-preprocess
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -63,13 +63,13 @@ spec:
 
     - name: TrainAutoencoderModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:f470ca8
-        imageBuild:
-          repositoryName: autoencoder-train-gpu
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: scripts/Dockerfile.ae-train-gpu
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:244db3c
+#        imageBuild:
+#          repositoryName: autoencoder-train-gpu
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: scripts/Dockerfile.ae-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -88,13 +88,13 @@ spec:
 
     - name: DataPrepSiamese
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:847a979
-        imageBuild:
-          repositoryName: siamese-preprocess
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: scripts/Dockerfile.siamese-preprocess
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:244db3c
+#        imageBuild:
+#          repositoryName: siamese-preprocess
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: scripts/Dockerfile.siamese-preprocess
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -115,13 +115,13 @@ spec:
 
     - name: TrainSiameseModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:e6ea6a5
-#        imageBuild:
-#          repositoryName: siamese-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.siamese-train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:244db3c
+        imageBuild:
+          repositoryName: siamese-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.siamese-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -140,13 +140,13 @@ spec:
 
     - name: DataPrepSpectralNet
       container:
-        #        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:118288d
-        imageBuild:
-          repositoryName: spectral-net-preprocess
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: scripts/Dockerfile.spectral-preprocess
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:244db3c
+#        imageBuild:
+#          repositoryName: spectral-net-preprocess
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: scripts/Dockerfile.spectral-preprocess
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -165,13 +165,13 @@ spec:
 
     - name: TrainSpectralNetModel
       train:
-        #        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
-        imageBuild:
-          repositoryName: spectral-net-train-gpu
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: scripts/Dockerfile.spectral-train-gpu
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:244db3c
+#        imageBuild:
+#          repositoryName: spectral-net-train-gpu
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: scripts/Dockerfile.spectral-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
