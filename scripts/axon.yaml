@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store1
+      name: axon-store4
     spec:
       storageClassName: standard
       accessModes: ["ReadWriteOnce"]
@@ -32,6 +32,15 @@ spec:
 #          buildLocation: /src
 #          dockerfile:
 #            path: scripts/Dockerfile.data-preprocess
+        env:
+          - name: LD_LIBRARY_PATH
+            value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
+          - name: GPU
+            value: "0"
+          - name: GPU_MEMORY_FRACTION
+            value: "0.5"
+          - name: DATA_SET
+            value: cc
 
     - name: DataPrepAutoEncoder
       container:
@@ -42,6 +51,15 @@ spec:
 #          buildLocation: /src
 #          dockerfile:
 #            path: scripts/Dockerfile.ae-preprocess
+        env:
+          - name: LD_LIBRARY_PATH
+            value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
+          - name: GPU
+            value: "0"
+          - name: GPU_MEMORY_FRACTION
+            value: "0.5"
+          - name: DATA_SET
+            value: cc
 
     - name: TrainAutoencoderModel
       train:
@@ -60,7 +78,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.50"
           - name: DATA_SET
-            value: mnist
+            value: cc
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -70,13 +88,13 @@ spec:
 
     - name: DataPrepSiamese
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:f470ca8
-        imageBuild:
-          repositoryName: siamese-preprocess
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: scripts/Dockerfile.siamese-preprocess
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:0ce486d
+#        imageBuild:
+#          repositoryName: siamese-preprocess
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: scripts/Dockerfile.siamese-preprocess
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -85,7 +103,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.5"
           - name: DATA_SET
-            value: mnist
+            value: cc
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -110,7 +128,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.50"
           - name: DATA_SET
-            value: mnist
+            value: cc
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -135,7 +153,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.5"
           - name: DATA_SET
-            value: mnist
+            value: cc
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -160,7 +178,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.5"
           - name: DATA_SET
-            value: mnist
+            value: cc
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -188,14 +206,14 @@ spec:
             task: DataPrep
         - resourceExecutor:
             task: DataPrepAutoEncoder
-#        - resourceExecutor:
-#            task: DataPrepSpectralNet
-        - resourceExecutor:
-            task: DataPrepSiamese
         - trainer:
             task: TrainAutoencoderModel
-        - trainer:
+        - resourceExecutor:
+            task: DataPrepSiamese
+       - trainer:
             task: TrainSiameseModel
+         - resourceExecutor:
+            task: DataPrepSpectralNet
         - trainer:
             task: TrainSpectralNetModel
 

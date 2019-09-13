@@ -21,7 +21,7 @@ parser.add_argument('--dset', type=str, help='dataset to use', default='mnist')
 args = parser.parse_args()
 params = get_autoencoder_config(args)
 
-data_path = os.path.join(params['base_data_path'], '%s_data.hdf5' % args.dset)
+data_path = os.path.join(params['base_data_path'], '%s_data.pkl' % args.dset)
 file = open(data_path, 'rb')
 data = pickle.load(file)
 file.close()

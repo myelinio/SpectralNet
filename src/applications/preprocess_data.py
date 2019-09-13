@@ -19,7 +19,7 @@ print("Loading data")
 data = load_data(params)
 print("Finsihed Loading data")
 
-data_path = os.path.join(params['data_path'], '%s_data.hdf5' % args.dset)
+data_path = os.path.join(params['data_path'], '%s_data.pkl' % args.dset)
 if not os.path.exists(params['data_path']):
     os.makedirs(params['data_path'])
 
