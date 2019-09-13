@@ -22,6 +22,9 @@ def get_spectralnet_config(args):
     ae_model_task = myelin.admin.task(axon="spectral-net", task_name="TrainAutoencoderModel", namespace="myelin")
     params['ae_model_path'] = ae_model_task.model_path if ae_model_task else '/tmp/model/ae/'
 
+    data_task = myelin.admin.task(axon="spectral-net", task_name="DataPrepSpectralNet", namespace="myelin")
+    params['data_path'] = data_task.data_path if ae_model_task else '/tmp/data/'
+
     return params
 
 

@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: spectral-net
+  name: spectral-net1
 spec:
 
   serviceAccountName: myelin-app-myelin
@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store
+      name: axon-store1
     spec:
       storageClassName: standard
       accessModes: ["ReadWriteOnce"]
@@ -165,13 +165,13 @@ spec:
 
     - name: TrainSpectralNetModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:244db3c
-#        imageBuild:
-#          repositoryName: spectral-net-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.spectral-train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:244db3c
+        imageBuild:
+          repositoryName: spectral-net-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.spectral-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -204,18 +204,18 @@ spec:
   sensors:
     - name: TrainAutoencoderModelOnStart
       tasks:
-        - resourceExecutor:
-            task: DataPrep
-        - resourceExecutor:
-            task: DataPrepAutoEncoder
-        - trainer:
-            task: TrainAutoencoderModel
-        - resourceExecutor:
-            task: DataPrepSiamese
-        - trainer:
-            task: TrainSiameseModel
-        - resourceExecutor:
-            task: DataPrepSpectralNet
+#        - resourceExecutor:
+#            task: DataPrep
+#        - resourceExecutor:
+#            task: DataPrepAutoEncoder
+#        - trainer:
+#            task: TrainAutoencoderModel
+#        - resourceExecutor:
+#            task: DataPrepSiamese
+#        - trainer:
+#            task: TrainSiameseModel
+#        - resourceExecutor:
+#            task: DataPrepSpectralNet
         - trainer:
             task: TrainSpectralNetModel
 
