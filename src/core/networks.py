@@ -135,9 +135,8 @@ class SiameseNet:
         input_shape = x.shape[1:]
         inputs = {
             'Unlabeled': Input(shape=input_shape, name='UnlabeledInput'),
-            'Orthonorm': Input(shape=input_shape, name='OrthonormInput'),
         }
-        return train.predict_unlabelled(self.outputs['A'], x_unlabeled=x, inputs=inputs,
+        return train.predict_unlabelled_simaese(self.outputs['A'], x_unlabeled=x, inputs=inputs,
                                         batch_sizes=batch_sizes)
 
     def save_model(self):

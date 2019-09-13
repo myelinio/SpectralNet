@@ -17,7 +17,7 @@ params = get_common_config(args)
 
 print("Loading data")
 data = load_data(params)
-data = tuple([x[:100] for x in data])
+data = tuple([x[:1000] for x in data])
 print("Finsihed Loading data")
 
 data_path = os.path.join(params['data_path'], '%s_data.pkl' % args.dset)

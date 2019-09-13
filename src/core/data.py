@@ -281,9 +281,9 @@ def embed_data(x, params, dset):
     x = x.reshape(-1, np.prod(x.shape[1:]))
 
     get_embeddings = K.function([pt_ae.input],
-                                [pt_ae.layers[3].output])
+                                [pt_ae.layers[-2].output])
 
-    get_reconstruction = K.function([pt_ae.layers[4].input],
+    get_reconstruction = K.function([pt_ae.layers[-1].input],
                                     [pt_ae.output])
     x_embedded = predict_with_K_fn(get_embeddings, x)[0]
     print("Calling predict_with_K_fn")

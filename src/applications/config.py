@@ -79,7 +79,7 @@ def get_common_config(args):
     if args.dset == 'mnist':
         mnist_params = {
             'n_clusters': 10,  # number of clusters in data
-            'use_code_space': False,  # enable / disable code space embedding
+            'use_code_space': True,  # enable / disable code space embedding
             'affinity': 'siamese',  # affinity type: siamese / knn
             'n_nbrs': 3,  # number of nonzero entries (neighbors) to use for graph Laplacian affinity matrix
             'scale_nbr': 2,  # neighbor used to determine scale of gaussian graph Laplacian; calculated by
