@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store4
+      name: axon-store6
     spec:
       storageClassName: standard
       accessModes: ["ReadWriteOnce"]
@@ -25,7 +25,7 @@ spec:
   tasks:
     - name: DataPrep
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:44a33d8
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:847a979
 #        imageBuild:
 #          repositoryName: data-preprocess
 #          artifact: spectral-net-source
@@ -40,17 +40,17 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.5"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
     - name: DataPrepAutoEncoder
       container:
         image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:7af2350
-#        imageBuild:
-#          repositoryName: autoencoder-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.ae-preprocess
+        #        imageBuild:
+        #          repositoryName: autoencoder-preprocess
+        #          artifact: spectral-net-source
+        #          buildLocation: /src
+        #          dockerfile:
+        #            path: scripts/Dockerfile.ae-preprocess
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -59,17 +59,17 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.5"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
     - name: TrainAutoencoderModel
       train:
         image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:f470ca8
-#        imageBuild:
-#          repositoryName: autoencoder-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.ae-train-gpu
+        #        imageBuild:
+        #          repositoryName: autoencoder-train-gpu
+        #          artifact: spectral-net-source
+        #          buildLocation: /src
+        #          dockerfile:
+        #            path: scripts/Dockerfile.ae-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -78,7 +78,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.50"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -88,7 +88,7 @@ spec:
 
     - name: DataPrepSiamese
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:0ce486d
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:847a979	
 #        imageBuild:
 #          repositoryName: siamese-preprocess
 #          artifact: spectral-net-source
@@ -103,17 +103,19 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.5"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
         resources:
+          requests:
+            cpu: "2"
           limits:
             nvidia.com/gpu: 1
 
     - name: TrainSiameseModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu
+        #        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu
         imageBuild:
           repositoryName: siamese-train-gpu
           artifact: spectral-net-source
@@ -128,7 +130,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.50"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -138,7 +140,7 @@ spec:
 
     - name: DataPrepSpectralNet
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:118288d
+        #        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:118288d
         imageBuild:
           repositoryName: spectral-net-preprocess
           artifact: spectral-net-source
@@ -153,7 +155,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.5"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -163,7 +165,7 @@ spec:
 
     - name: TrainSpectralNetModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
+        #        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1.5
         imageBuild:
           repositoryName: spectral-net-train-gpu
           artifact: spectral-net-source
@@ -178,7 +180,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.5"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -189,7 +191,7 @@ spec:
 
     - name: DeployModel
       deploy:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:1.0
+        #        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:1.0
         imageBuild:
           repositoryName: model-graph-model4-deploy
           artifact: spectral-net-source
@@ -204,15 +206,15 @@ spec:
       tasks:
         - resourceExecutor:
             task: DataPrep
-        - resourceExecutor:
-            task: DataPrepAutoEncoder
-        - trainer:
-            task: TrainAutoencoderModel
+#        - resourceExecutor:
+#            task: DataPrepAutoEncoder
+#        - trainer:
+#            task: TrainAutoencoderModel
         - resourceExecutor:
             task: DataPrepSiamese
-       - trainer:
+        - trainer:
             task: TrainSiameseModel
-         - resourceExecutor:
+        - resourceExecutor:
             task: DataPrepSpectralNet
         - trainer:
             task: TrainSpectralNetModel
