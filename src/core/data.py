@@ -185,6 +185,7 @@ def get_base_data(params, data=None):
         print("Started flattening data")
         for i, d in enumerate(all_data):
             all_data[i] = all_data[i].reshape((-1, np.prod(all_data[i].shape[1:])))
+    x_train, x_val, x_test, x_train_unlabeled, x_train_labeled, x_val_unlabeled, x_val_labeled = all_data
     return y_train, x_train, p_train, \
            y_test, x_test, \
            y_val, x_val, p_val, \
@@ -259,7 +260,7 @@ def load_data(params):
     return x_train, x_test, y_train, y_test
 
 
-def embed_data(x, params, dset):
+def embed_data1(x, dset):
     """
     Convenience function: embeds x into the code space using the corresponding
     autoencoder (specified by dset).
@@ -271,8 +272,8 @@ def embed_data(x, params, dset):
         dset = 'reuters10k'
 
     json_path = '../pretrain_weights/ae_{}.json'.format(dset)
-    # weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(dset)
-    weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
+    weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(dset)
+    # weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
 
     with open(json_path) as f:
         pt_ae = model_from_json(f.read())
@@ -297,6 +298,40 @@ def embed_data(x, params, dset):
 
     reconstruction_mse = np.mean(np.square(x - x_recon))
     print("using pretrained embeddings; sanity check, total reconstruction error:", np.mean(reconstruction_mse))
+
+    return x_embedded
+
+def embed_data(x, params, dset):
+    '''
+    Convenience function: embeds x into the code space using the corresponding
+    autoencoder (specified by dset).
+    '''
+    if not len(x):
+        return np.zeros(shape=(0, 10))
+    if dset == 'reuters':
+        dset = 'reuters10k'
+
+    json_path = '../pretrain_weights/ae_{}.json'.format(dset)
+    # weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(dset)
+    weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
+
+    with open(json_path) as f:
+        pt_ae = model_from_json(f.read())
+    pt_ae.load_weights(weights_path)
+
+    x = x.reshape(-1, np.prod(x.shape[1:]))
+
+    get_embeddings = K.function([pt_ae.input],
+                                  [pt_ae.layers[3].output])
+
+    get_reconstruction = K.function([pt_ae.layers[4].input],
+                                  [pt_ae.output])
+    x_embedded = predict_with_K_fn(get_embeddings, x)[0]
+    x_recon = predict_with_K_fn(get_reconstruction, x_embedded)[0]
+    reconstruction_mse = np.mean(np.square(x - x_recon))
+    print("using pretrained embeddings; sanity check, total reconstruction error:", np.mean(reconstruction_mse))
+
+    del pt_ae
 
     return x_embedded
 
