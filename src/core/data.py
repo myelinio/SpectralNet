@@ -260,46 +260,46 @@ def load_data(params):
     return x_train, x_test, y_train, y_test
 
 
-def embed_data1(x, dset):
-    """
-    Convenience function: embeds x into the code space using the corresponding
-    autoencoder (specified by dset).
-    """
-    print("Embedding data into code space")
-    if not len(x):
-        return np.zeros(shape=(0, 10))
-    if dset == 'reuters':
-        dset = 'reuters10k'
-
-    json_path = '../pretrain_weights/ae_{}.json'.format(dset)
-    weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(dset)
-    # weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
-
-    with open(json_path) as f:
-        pt_ae = model_from_json(f.read())
-    pt_ae.load_weights(weights_path)
-
-    x = x.reshape(-1, np.prod(x.shape[1:]))
-
-    get_embeddings = K.function([pt_ae.input],
-                                [pt_ae.layers[-2].output])
-
-    get_reconstruction = K.function([pt_ae.layers[-1].input],
-                                    [pt_ae.output])
-    x_embedded = predict_with_K_fn(get_embeddings, x)[0]
-    print("Calling predict_with_K_fn")
-    x_recon = predict_with_K_fn(get_reconstruction, x_embedded)[0]
-    del pt_ae
-    print("Finished Embedding data into code space")
-
-    # ae = AutoEncoder(dset)
-    # x_embedded = ae.predict_embedding(x)
-    # x_recon = ae.predict_reconstruction(x_embedded)
-
-    reconstruction_mse = np.mean(np.square(x - x_recon))
-    print("using pretrained embeddings; sanity check, total reconstruction error:", np.mean(reconstruction_mse))
-
-    return x_embedded
+# def embed_data1(x, dset):
+#     """
+#     Convenience function: embeds x into the code space using the corresponding
+#     autoencoder (specified by dset).
+#     """
+#     print("Embedding data into code space")
+#     if not len(x):
+#         return np.zeros(shape=(0, 10))
+#     if dset == 'reuters':
+#         dset = 'reuters10k'
+#
+#     json_path = '../pretrain_weights/ae_{}.json'.format(dset)
+#     weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(dset)
+#     # weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
+#
+#     with open(json_path) as f:
+#         pt_ae = model_from_json(f.read())
+#     pt_ae.load_weights(weights_path)
+#
+#     x = x.reshape(-1, np.prod(x.shape[1:]))
+#
+#     get_embeddings = K.function([pt_ae.input],
+#                                 [pt_ae.layers[-2].output])
+#
+#     get_reconstruction = K.function([pt_ae.layers[-1].input],
+#                                     [pt_ae.output])
+#     x_embedded = predict_with_K_fn(get_embeddings, x)[0]
+#     print("Calling predict_with_K_fn")
+#     x_recon = predict_with_K_fn(get_reconstruction, x_embedded)[0]
+#     del pt_ae
+#     print("Finished Embedding data into code space")
+#
+#     # ae = AutoEncoder(dset)
+#     # x_embedded = ae.predict_embedding(x)
+#     # x_recon = ae.predict_reconstruction(x_embedded)
+#
+#     reconstruction_mse = np.mean(np.square(x - x_recon))
+#     print("using pretrained embeddings; sanity check, total reconstruction error:", np.mean(reconstruction_mse))
+#
+#     return x_embedded
 
 def embed_data(x, params, dset):
     '''
@@ -312,8 +312,8 @@ def embed_data(x, params, dset):
         dset = 'reuters10k'
 
     json_path = '../pretrain_weights/ae_{}.json'.format(dset)
-    # weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(dset)
-    weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
+    weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(dset)
+    # weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
 
     with open(json_path) as f:
         pt_ae = model_from_json(f.read())

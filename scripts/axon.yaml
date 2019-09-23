@@ -206,10 +206,10 @@ spec:
       tasks:
         - resourceExecutor:
             task: DataPrep
-        - resourceExecutor:
-            task: DataPrepAutoEncoder
-        - trainer:
-            task: TrainAutoencoderModel
+#        - resourceExecutor:
+#            task: DataPrepAutoEncoder
+#        - trainer:
+#            task: TrainAutoencoderModel
         - resourceExecutor:
             task: DataPrepSiamese
         - trainer:
