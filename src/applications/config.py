@@ -94,7 +94,7 @@ def get_common_config(args):
 
             'siam_ne': 400,  # number of training epochs for siamese net
             'spec_ne': 400,  # number of training epochs for spectral net
-            'spec_ae': 10,
+            'spec_ae': 400,
             'siam_lr': 1e-3,  # initial learning rate for siamese net
             'spec_lr': 1e-3,  # initial learning rate for spectral net
             'siam_patience': 10,  # early stopping patience for siamese net
@@ -127,7 +127,7 @@ def get_common_config(args):
             'siam_k': 100,
             'siam_ne': 20,
             'spec_ne': 300,
-            'spec_ae': 10,
+            'spec_ae': 400,
             'siam_lr': 1e-3,
             'spec_lr': 5e-5,
             'siam_patience': 1,
@@ -162,7 +162,7 @@ def get_common_config(args):
             'siam_k': 2,  # threshold where, for all k <= siam_k closest neighbors to x_i, (x_i, k) is considered
             # a 'positive' pair by siamese net
             'siam_ne': 20,
-            'spec_ae': 10,
+            'spec_ae': 400,
             'siam_lr': 1e-3,
             'siam_patience': 1,
             'siam_drop': 0.1,
@@ -198,7 +198,7 @@ def get_common_config(args):
         params.update(cc_params)
     elif args.dset == 'cc_semisup':
         cc_semisup_params = {
-            'spec_ae': 10,
+            'spec_ae': 400,
             'dset': 'cc',  # dataset affects data loading in get_data() so we must set back to 'cc'
             # data generation parameters
             'train_set_fraction': .8,
