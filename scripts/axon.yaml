@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store3
+      name: axon-store1
     spec:
       storageClassName: standard
       accessModes: ["ReadWriteOnce"]
@@ -115,13 +115,13 @@ spec:
 
     - name: TrainSiameseModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:7c52262
-#        imageBuild:
-#          repositoryName: siamese-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.siamese-train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:7c52262
+        imageBuild:
+          repositoryName: siamese-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.siamese-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -165,13 +165,13 @@ spec:
 
     - name: TrainSpectralNetModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:398f773
-        imageBuild:
-          repositoryName: spectral-net-train-gpu
-          artifact: spectral-net-source
-          buildLocation: /src
-          dockerfile:
-            path: scripts/Dockerfile.spectral-train-gpu
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:1b1bf72
+#        imageBuild:
+#          repositoryName: spectral-net-train-gpu
+#          artifact: spectral-net-source
+#          buildLocation: /src
+#          dockerfile:
+#            path: scripts/Dockerfile.spectral-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin

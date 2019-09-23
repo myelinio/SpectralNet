@@ -94,7 +94,7 @@ def get_common_config(args):
             'siam_k': 2,  # threshold where, for all k <= siam_k closest neighbors to x_i, (x_i, k) is considered
             # a 'positive' pair by siamese net
 
-            'siam_ne': 400,  # number of training epochs for siamese net
+            'siam_ne': 100,  # number of training epochs for siamese net
             'spec_ne': 400,  # number of training epochs for spectral net
             'spec_ae': 400,
             'siam_lr': 1e-3,  # initial learning rate for siamese net
