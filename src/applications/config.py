@@ -20,10 +20,12 @@ def get_spectralnet_config(args):
     params['siamese_model_path'] = siamese_model_task.model_path if siamese_model_task else '/tmp/model/siamese/'
 
     ae_model_task = myelin.admin.task(axon="spectral-net", task_name="TrainAutoencoderModel", namespace="myelin")
+    print(ae_model_task)
     params['ae_model_path'] = ae_model_task.model_path if ae_model_task else '/tmp/model/ae/'
 
     data_task = myelin.admin.task(axon="spectral-net", task_name="DataPrepSpectralNet", namespace="myelin")
-    params['data_path'] = data_task.data_path if ae_model_task else '/tmp/data/'
+    print(data_task)
+    params['data_path'] = data_task.data_path if data_task else '/tmp/data/'
 
     return params
 
