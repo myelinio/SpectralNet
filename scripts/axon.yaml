@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store2
+      name: axon-store3
     spec:
       storageClassName: standard
       accessModes: ["ReadWriteOnce"]
@@ -25,13 +25,13 @@ spec:
   tasks:
     - name: DataPrep
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:2169926
-#        imageBuild:
-#          repositoryName: data-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.data-preprocess
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:2169926
+        imageBuild:
+          repositoryName: data-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.data-preprocess
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -40,17 +40,17 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
     - name: DataPrepAutoEncoder
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:2169926
-#        imageBuild:
-#          repositoryName: autoencoder-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.ae-preprocess
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:2169926
+        imageBuild:
+          repositoryName: autoencoder-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.ae-preprocess
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -59,17 +59,17 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
     - name: TrainAutoencoderModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:2169926
-#        imageBuild:
-#          repositoryName: autoencoder-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.ae-train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:2169926
+        imageBuild:
+          repositoryName: autoencoder-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.ae-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -78,7 +78,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.50"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -88,13 +88,13 @@ spec:
 
     - name: DataPrepSiamese
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:2169926
-#        imageBuild:
-#          repositoryName: siamese-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.siamese-preprocess
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:2169926
+        imageBuild:
+          repositoryName: siamese-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.siamese-preprocess
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -103,7 +103,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -115,13 +115,13 @@ spec:
 
     - name: TrainSiameseModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:2169926
-#        imageBuild:
-#          repositoryName: siamese-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.siamese-train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:2169926
+        imageBuild:
+          repositoryName: siamese-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.siamese-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -130,7 +130,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -140,13 +140,13 @@ spec:
 
     - name: DataPrepSpectralNet
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:2169926
-#        imageBuild:
-#          repositoryName: spectral-net-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.spectral-preprocess
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:2169926
+        imageBuild:
+          repositoryName: spectral-net-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.spectral-preprocess
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -155,7 +155,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -165,13 +165,13 @@ spec:
 
     - name: TrainSpectralNetModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:398f773
-#        imageBuild:
-#          repositoryName: spectral-net-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.spectral-train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:398f773
+        imageBuild:
+          repositoryName: spectral-net-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.spectral-train-gpu
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -180,7 +180,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -191,7 +191,7 @@ spec:
 
     - name: DeployModel
       deploy:
-        #        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:1.0
+#                image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:1.0
         imageBuild:
           repositoryName: model-graph-model4-deploy
           artifact: spectral-net-source

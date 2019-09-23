@@ -216,7 +216,8 @@ class SpectralNet:
             self.net.load_weights(self.model_weights_path)
         else:
             # initialize spectralnet variables
-            K.get_session().run(tf.variables_initializer(self.net.trainable_weights))
+            # K.get_session().run(tf.variables_initializer(self.net.trainable_weights))
+            K.get_session().run(tf.global_variables_initializer())
 
     def train(self, x_train_unlabeled, x_train_labeled, x_val_unlabeled,
               lr, drop, patience, num_epochs):
