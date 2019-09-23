@@ -76,7 +76,7 @@ def get_common_config(args):
         'val_set_fraction': 0.1,  # fraction of training set to use as validation
         'precomputedKNNPath': '',
         # path for precomputed nearest neighbors (with indices and saved as a pickle or h5py file)
-        'siam_batch_size': 128,  # minibatch size for siamese net
+        'siam_batch_size': 256,  # minibatch size for siamese net
     }
     params.update(general_params)
 
