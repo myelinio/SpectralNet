@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store12
+      name: axon-store14
     spec:
       storageClassName: standard
       accessModes: ["ReadWriteOnce"]
