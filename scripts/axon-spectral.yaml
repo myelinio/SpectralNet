@@ -1,7 +1,7 @@
 apiVersion: myelinproj.io/v1alpha1
 kind: Axon
 metadata:
-  name: spectral-net
+  name: spectral-net-predict
 spec:
 
   serviceAccountName: myelin-app-myelin
@@ -140,13 +140,13 @@ spec:
 
     - name: DataPrepSpectralNet
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:93368ac
-#        imageBuild:
-#          repositoryName: spectral-net-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.spectral-preprocess
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:7c52262
+        imageBuild:
+          repositoryName: spectral-net-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.spectral-preprocess
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
@@ -189,25 +189,20 @@ spec:
             nvidia.com/gpu: 1
 
 
-    - name: DeploySpectralNetModel
+    - name: DeployModel
       deploy:
 #                image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:1.0
         imageBuild:
-          repositoryName: spectral-net-deploy
+          repositoryName: model-graph-model4-deploy
           artifact: spectral-net-source
           buildLocation: /src
-          s2i:
-            contextDir: "./"
-            builderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-runtime-py3:v0.1.6
-
+          dockerfile:
+            path: scripts/Dockerfile.deploy
         endpointType: REST
         endpointRestType: Multipart
 
   sensors:
-    - name: TrainModels
-      triggers:
-        - name: RestTrigger
-          type: Rest
+    - name: TrainAutoencoderModelOnStart
       tasks:
         - resourceExecutor:
             task: DataPrep
@@ -225,40 +220,40 @@ spec:
             task: TrainSpectralNetModel
 
 
-    - name: DeploymentDecisionMaker
-      triggers:
-        - name: TestTrainingComplete
-          type: Lifecycle
-          condition: Succeeded
-          task: TrainSpectralNetModel
-      tasks:
-        - deployer:
-            name: deployer
-            rolloutSpec:
-              - destinations:
-                  - destinationIndex: 0
-                    weight: 50
-                  - destinationIndex: 1
-                    weight: 50
-            replicas: 1
-            models:
-              - name: ClusteringModel
-                modelSelectionStrategy: "best"
-                routingStrategy:
-                  - destinations:
-                      - destinationName: spectralnet
-                        weight: 100
-                backendModels:
-                  - name: spectralnet
-                    trainer: TrainSpectralNetModel
-                    deployer: DeploySpectralNetModel
-                    modelSelectionStrategy: "best"
-            routes:
-              - path: /predict
-                dag:
-                  - model: ClusteringModel
-                    path: /predict
-              - path: /send-feedback
-                dag:
-                  - model: ClusteringModel
-                    path: /send-feedback
+#    - name: DeploymentDecisionMaker
+#      triggers:
+#        - name: TestTrainingComplete
+#          type: Lifecycle
+#          condition: Succeeded
+#          task: TrainModel
+#      tasks:
+#        - deployer:
+#            name: deployer
+#            rolloutSpec:
+#              - destinations:
+#                  - destinationIndex: 0
+#                    weight: 50
+#                  - destinationIndex: 1
+#                    weight: 50
+#            replicas: 1
+#            models:
+#              - name: DeployModelCo
+#                modelSelectionStrategy: "best"
+#                routingStrategy:
+#                  - destinations:
+#                      - destinationName: myelin-test1
+#                        weight: 100
+#                backendModels:
+#                  - name: myelin-test1
+#                    trainer: TrainModel
+#                    deployer: DeployModel
+#                    modelSelectionStrategy: "best"
+#            routes:
+#              - path: /predict
+#                dag:
+#                  - model: DeployModelCo
+#                    path: /predict
+#              - path: /send-feedback
+#                dag:
+#                  - model: DeployModelCo
+#                    path: /send-feedback
