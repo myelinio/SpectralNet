@@ -8,22 +8,22 @@ def get_spectralnet_config(args):
     params = get_common_config(args)
     # SELECT GPU
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
-    base_data_task = myelin.admin.task(axon="spectral-net", task_name="DataPrep", namespace="myelin")
+    base_data_task = myelin.admin.task(task_name="DataPrep")
     print(base_data_task)
     params['base_data_path'] = base_data_task.data_path if base_data_task else '/tmp/data/'
 
     model_path = myelin.admin.model_path(default_value='/tmp/model/spectralnet/')
     params['model_path'] = model_path
 
-    siamese_model_task = myelin.admin.task(axon="spectral-net", task_name="TrainSiameseModel", namespace="myelin")
+    siamese_model_task = myelin.admin.task(task_name="TrainSiameseModel")
     print(siamese_model_task)
     params['siamese_model_path'] = siamese_model_task.model_path if siamese_model_task else '/tmp/model/siamese/'
 
-    ae_model_task = myelin.admin.task(axon="spectral-net", task_name="TrainAutoencoderModel", namespace="myelin")
+    ae_model_task = myelin.admin.task(task_name="TrainAutoencoderModel")
     print(ae_model_task)
     params['ae_model_path'] = ae_model_task.model_path if ae_model_task else '/tmp/model/ae/'
 
-    data_task = myelin.admin.task(axon="spectral-net", task_name="DataPrepSpectralNet", namespace="myelin")
+    data_task = myelin.admin.task(task_name="DataPrepSpectralNet")
     print(data_task)
     params['data_path'] = data_task.data_path if data_task else '/tmp/data/'
 
@@ -34,14 +34,14 @@ def get_siamese_config(args):
     params = get_common_config(args)
     # SELECT GPU
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
-    base_data_task = myelin.admin.task(axon="spectral-net", task_name="DataPrep", namespace="myelin")
+    base_data_task = myelin.admin.task(task_name="DataPrep")
     print(base_data_task)
     params['base_data_path'] = base_data_task.data_path if base_data_task else '/tmp/data/'
 
     model_path = myelin.admin.model_path(default_value='/tmp/model/siamese/')
     params['model_path'] = model_path
 
-    ae_model_task = myelin.admin.task(axon="spectral-net", task_name="TrainAutoencoderModel", namespace="myelin")
+    ae_model_task = myelin.admin.task(task_name="TrainAutoencoderModel")
     params['ae_model_path'] = ae_model_task.model_path if ae_model_task else '/tmp/model/ae/'
 
     return params
@@ -51,7 +51,7 @@ def get_autoencoder_config(args):
     params = get_common_config(args)
     # SELECT GPU
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
-    base_data_task = myelin.admin.task(axon="spectral-net", task_name="DataPrep", namespace="myelin")
+    base_data_task = myelin.admin.task(task_name="DataPrep")
     print(base_data_task)
     params['base_data_path'] = base_data_task.data_path if base_data_task else '/tmp/data/'
 
@@ -153,7 +153,7 @@ def get_common_config(args):
     elif args.dset == 'cc':
         cc_params = {
             # data generation parameters
-            'train_set_fraction': 1.,  # fraction of the dataset to use for training
+            'train_set_fraction': 0.8,  # fraction of the dataset to use for training
             'noise_sig': 0.1,  # variance of the gaussian noise applied to x
             'n': 1500,  # number of total points in dataset
             # training parameters
@@ -191,10 +191,10 @@ def get_common_config(args):
                 {'type': 'BatchNormalization'},
             ],
             'ae_reg': 1e-2,
-            'ae_arch': [
-                {'type': 'relu', 'size': 5},
-                {'type': 'sigmoid', 'size': 2},
-            ],
+            # 'ae_arch': [
+            #     {'type': 'relu', 'size': 5},
+            #     {'type': 'sigmoid', 'size': 2},
+            # ],
             'use_all_data': True,
         }
         params.update(cc_params)

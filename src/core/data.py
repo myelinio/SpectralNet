@@ -72,14 +72,20 @@ def get_siamese_data(params, y_train_labeled, y_val_labeled, x_train_labeled, x_
         pairs_val_unlabeled, dist_val_unlabeled, pairs_val_labeled, dist_val_labeled)
 
     # combine labeled and unlabeled pairs for training the siamese
-    pairs_train = np.concatenate((pairs_train_unlabeled, pairs_train_labeled), axis=0)
-    dist_train = np.concatenate((dist_train_unlabeled, dist_train_labeled), axis=0)
-    pairs_val = np.concatenate((pairs_val_unlabeled, pairs_val_labeled), axis=0)
-    dist_val = np.concatenate((dist_val_unlabeled, dist_val_labeled), axis=0)
+    pairs_train = concatenate(pairs_train_unlabeled, pairs_train_labeled)
+    dist_train = concatenate(dist_train_unlabeled, dist_train_labeled)
+    pairs_val = concatenate(pairs_val_unlabeled, pairs_val_labeled)
+    dist_val = concatenate(dist_val_unlabeled, dist_val_labeled)
     siamese_dict['train_and_test'] = (pairs_train, dist_train, pairs_val, dist_val)
 
     return siamese_dict
 
+
+def concatenate(x1, x2):
+    if len(x2) > 0:
+        return np.concatenate((x1, x2), axis=0)
+    else:
+        return x1
 
 def build_siamese_data(params, data=None):
     """
@@ -321,11 +327,10 @@ def embed_data(x, params, dset):
 
     x = x.reshape(-1, np.prod(x.shape[1:]))
 
-    get_embeddings = K.function([pt_ae.input],
-                                  [pt_ae.layers[3].output])
+    embedding_layer_index = int((len(pt_ae.layers) / 2) - 1)
+    get_embeddings = K.function([pt_ae.input], [pt_ae.layers[embedding_layer_index].output])
 
-    get_reconstruction = K.function([pt_ae.layers[4].input],
-                                  [pt_ae.output])
+    get_reconstruction = K.function([pt_ae.layers[embedding_layer_index + 1].input], [pt_ae.output])
     x_embedded = predict_with_K_fn(get_embeddings, x)[0]
     x_recon = predict_with_K_fn(get_reconstruction, x_embedded)[0]
     reconstruction_mse = np.mean(np.square(x - x_recon))
