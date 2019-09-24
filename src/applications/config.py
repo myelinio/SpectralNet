@@ -71,8 +71,9 @@ def get_common_config(args):
     params = defaultdict(lambda: None)
 
     # SET GENERAL HYPERPARAMETERS
+    dset = args.dset
     general_params = {
-        'dset': args.dset,  # dataset: reuters / mnist
+        'dset': dset,  # dataset: reuters / mnist
         'val_set_fraction': 0.1,  # fraction of training set to use as validation
         'precomputedKNNPath': '',
         # path for precomputed nearest neighbors (with indices and saved as a pickle or h5py file)
@@ -81,7 +82,7 @@ def get_common_config(args):
     params.update(general_params)
 
     # SET DATASET SPECIFIC HYPERPARAMETERS
-    if args.dset == 'mnist':
+    if dset == 'mnist':
         mnist_params = {
             'n_clusters': 10,  # number of clusters in data
             'use_code_space': True,  # enable / disable code space embedding
@@ -119,7 +120,7 @@ def get_common_config(args):
             'use_all_data': True,  # enable to use all data for training (no test set)
         }
         params.update(mnist_params)
-    elif args.dset == 'reuters':
+    elif dset == 'reuters':
         reuters_params = {
             'n_clusters': 4,
             'use_code_space': True,
@@ -150,7 +151,7 @@ def get_common_config(args):
             'use_all_data': True,
         }
         params.update(reuters_params)
-    elif args.dset == 'cc':
+    elif dset == 'cc':
         cc_params = {
             # data generation parameters
             'train_set_fraction': 0.8,  # fraction of the dataset to use for training
@@ -198,7 +199,7 @@ def get_common_config(args):
             'use_all_data': True,
         }
         params.update(cc_params)
-    elif args.dset == 'cc_semisup':
+    elif dset == 'cc_semisup':
         cc_semisup_params = {
             'spec_ae': 400,
             'dset': 'cc',  # dataset affects data loading in get_data() so we must set back to 'cc'

@@ -1,4 +1,5 @@
 import argparse
+import collections
 
 import joblib
 
@@ -12,13 +13,8 @@ import os
 from keras.layers import Input
 import numpy as np
 
-# Parse Arguments
-parser = argparse.ArgumentParser()
-parser.add_argument('--gpu', type=str, help='gpu number to use', default='')
-parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to use', default='1.0')
-parser.add_argument('--dset', type=str, help='dataset to use', default='mnist')
-args = parser.parse_args()
 
+Args = collections.namedtuple('Args', 'gpu gpu_memory_fraction dset')
 
 def get_session(gpu_fraction=0.333):
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction,
@@ -29,7 +25,7 @@ def get_session(gpu_fraction=0.333):
 class SpectralNetModel(object):
 
     def __init__(self):
-        # self.c = metric.MetricClient()
+        args = Args(os.environ['GPU'], float(os.environ['GPU_MEMORY_FRACTION']), os.environ['DSET'])
         global graph
         graph = tf.get_default_graph()
 

@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store15
+      name: axon-store18
     spec:
       storageClassName: standard
       accessModes: ["ReadWriteOnce"]
@@ -200,13 +200,18 @@ spec:
             builderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-runtime-py3:v0.1.6
         env:
           - name: LD_LIBRARY_PATH
-            value: /usr/local/nvidia/lib64:/usr/local/nvidia/bin
+            value: /usr/local/cuda/lib64/:/usr/local/cuda-10.0/compat/:/usr/local/nvidia/lib64:/usr/local/nvidia/bin
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
             value: cc
+        nodeSelector:
+          cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
+        resources:
+          limits:
+            nvidia.com/gpu: 1
         endpointType: REST
         endpointRestType: Multipart
 
