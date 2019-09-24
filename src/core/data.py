@@ -72,10 +72,10 @@ def get_siamese_data(params, y_train_labeled, y_val_labeled, x_train_labeled, x_
         pairs_val_unlabeled, dist_val_unlabeled, pairs_val_labeled, dist_val_labeled)
 
     # combine labeled and unlabeled pairs for training the siamese
-    pairs_train = concatenate(pairs_train_unlabeled, pairs_train_labeled)
-    dist_train = concatenate(dist_train_unlabeled, dist_train_labeled)
-    pairs_val = concatenate(pairs_val_unlabeled, pairs_val_labeled)
-    dist_val = concatenate(dist_val_unlabeled, dist_val_labeled)
+    pairs_train = concatenate([pairs_train_unlabeled, pairs_train_labeled])
+    dist_train = concatenate([dist_train_unlabeled, dist_train_labeled])
+    pairs_val = concatenate([pairs_val_unlabeled, pairs_val_labeled])
+    dist_val = concatenate([dist_val_unlabeled, dist_val_labeled])
     siamese_dict['train_and_test'] = (pairs_train, dist_train, pairs_val, dist_val)
 
     return siamese_dict
