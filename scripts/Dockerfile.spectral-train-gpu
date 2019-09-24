@@ -16,4 +16,4 @@ ENV PYTHONPATH=/work/
 ENV GPU=1
 ENV DATA_SET=mnist
 ENV GPU_MEMORY_FRACTION=1.0
-CMD python applications.train_spectralnet.py --gpu=${GPU} --dset=${DATA_SET} --gpu_memory_fraction=${GPU_MEMORY_FRACTION}
+CMD python applications/train_spectralnet.py --gpu=${GPU} --dset=${DATA_SET} --gpu_memory_fraction=${GPU_MEMORY_FRACTION}

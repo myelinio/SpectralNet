@@ -13,4 +13,4 @@ WORKDIR /work
 COPY ./src /work/
 ENV PYTHONPATH=/work/
 ENV DATA_SET=mnist
-CMD python applications.preprocess_data.py --dset=${DATA_SET}
+CMD python applications/preprocess_data.py --dset=${DATA_SET}
