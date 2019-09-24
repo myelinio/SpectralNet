@@ -81,11 +81,12 @@ def get_siamese_data(params, y_train_labeled, y_val_labeled, x_train_labeled, x_
     return siamese_dict
 
 
-def concatenate(x1, x2):
-    if len(x2) > 0:
-        return np.concatenate((x1, x2), axis=0)
+def concatenate(data_list):
+    data_list_filtered = [x for x in data_list if len(x) > 0]
+    if len(data_list_filtered) == 1:
+        return data_list_filtered[0]
     else:
-        return x1
+        return np.concatenate(data_list_filtered, axis=0)
 
 def build_siamese_data(params, data=None):
     """

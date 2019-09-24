@@ -10,6 +10,7 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import OneHotEncoder
 
 from core import networks
+from core.data import concatenate
 from core.util import print_accuracy, get_cluster_sols, get_y_preds
 from sklearn.externals import joblib
 from sklearn.metrics import normalized_mutual_info_score as nmi
@@ -23,8 +24,8 @@ def run_net(data, params, train=True):
         'train_unlabeled_and_labeled']
     x_val_unlabeled, y_val_unlabeled, x_val_labeled, y_val_labeled = data['spectral']['val_unlabeled_and_labeled']
 
-    x = np.concatenate((x_train, x_val, x_test), axis=0)
-    y = np.concatenate((y_train, y_val, y_test), axis=0)
+    x = concatenate([x_train, x_val, x_test])
+    y = concatenate([y_train, y_val, y_test])
 
     if len(x_train_labeled):
         y_train_labeled_onehot = OneHotEncoder().fit_transform(y_train_labeled.reshape(-1, 1)).toarray()

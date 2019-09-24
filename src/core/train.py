@@ -4,7 +4,7 @@ train.py: contains all training and prediction backend functions for spectral ne
 import numpy as np
 from keras import backend as K
 # import tensorflow.keras.backend as K
-
+from core.data import concatenate
 from .util import make_batches
 
 
@@ -57,7 +57,7 @@ def train_step(return_var, updates, x_unlabeled, inputs, y_true,
     x_unlabeled, x_labeled, y_labeled = check_inputs(x_unlabeled, x_labeled, y_labeled, y_true)
 
     # combine data
-    x = np.concatenate((x_unlabeled, x_labeled), 0)
+    x = concatenate([x_unlabeled, x_labeled])
 
     # get shape of y_true
     y_shape = y_true.get_shape()[1:K.ndim(y_true)].as_list()
