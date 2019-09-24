@@ -5,3 +5,4 @@ annoy
 h5py
 numpy
 myelin
+joblib
