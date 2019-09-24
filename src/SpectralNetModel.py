@@ -16,6 +16,7 @@ import numpy as np
 
 Args = collections.namedtuple('Args', 'gpu gpu_memory_fraction dset')
 
+
 def get_session(gpu_fraction=0.333):
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction,
                                 allow_growth=False)
@@ -25,7 +26,7 @@ def get_session(gpu_fraction=0.333):
 class SpectralNetModel(object):
 
     def __init__(self):
-        args = Args(os.environ['GPU'], float(os.environ['GPU_MEMORY_FRACTION']), os.environ['DSET'])
+        args = Args(os.environ['GPU'], float(os.environ['GPU_MEMORY_FRACTION']), os.environ['DATA_SET'])
         global graph
         graph = tf.get_default_graph()
 

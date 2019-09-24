@@ -45,7 +45,7 @@ K.set_session(get_session(args.gpu_memory_fraction))
 # RUN Train
 x_train = data['spectral']['train_and_test'][0]
 x_test = data['spectral']['train_and_test'][2]
-json_path = '../pretrain_weights/ae_{}.json'.format(args.dset)
+json_path = 'pretrain_weights/ae_{}.json'.format(args.dset)
 weights_path = '{}/ae_{}_weights.h5'.format(params['model_path'], args.dset)
 # weights_path = '../pretrain_weights/ae_{}_weights.h5'.format(args.dset)
 

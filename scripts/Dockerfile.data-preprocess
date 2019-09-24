@@ -11,7 +11,6 @@ RUN apt-get update \
 WORKDIR /work
 
 COPY ./src /work/
-WORKDIR /work/applications
 ENV PYTHONPATH=/work/
 ENV DATA_SET=mnist
-CMD python preprocess_data.py --dset=${DATA_SET}
+CMD python applications.preprocess_data.py --dset=${DATA_SET}
