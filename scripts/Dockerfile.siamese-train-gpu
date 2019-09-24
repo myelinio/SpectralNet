@@ -12,7 +12,7 @@ RUN apt-get update \
 WORKDIR /work
 
 COPY ./src /work/
-yENV PYTHONPATH=/work/
+ENV PYTHONPATH=/work/
 ENV GPU=1
 ENV DATA_SET=mnist
 ENV GPU_MEMORY_FRACTION=1.0
