@@ -15,7 +15,7 @@ from sklearn.externals import joblib
 
 from applications.config import get_spectralnet_config
 from core import networks
-from core.data import build_spectral_data
+from core.data import build_spectral_data, embed_if_needed
 from core.util import get_y_preds_from_cm
 
 # Parse Arguments
@@ -39,10 +39,10 @@ class DeployModel(object):
         global graph
         graph = tf.get_default_graph()
 
-        params = get_spectralnet_config(args)
+        self.params = get_spectralnet_config(args)
 
         # LOAD DATA
-        data = build_spectral_data(params)
+        data = build_spectral_data(self.params)
 
         ktf.set_session(get_session(args.gpu_memory_fraction))
 
@@ -58,7 +58,7 @@ class DeployModel(object):
 
         input_shape = x.shape[1:]
 
-        y_labeled_onehot = np.empty((0, params['n_clusters']))
+        y_labeled_onehot = np.empty((0, self.params['n_clusters']))
 
         # spectralnet has three inputs -- they are defined here
         inputs = {
@@ -68,39 +68,40 @@ class DeployModel(object):
         }
 
         # Load Siamese network
-        if params['affinity'] == 'siamese':
-            siamese_net = networks.SiameseNet(inputs, params['arch'], params.get('siam_reg'), None,
-                                              params['siamese_model_path'])
+        if self.params['affinity'] == 'siamese':
+            siamese_net = networks.SiameseNet(inputs, self.params['arch'], self.params.get('siam_reg'), None,
+                                              self.params['siamese_model_path'])
 
         else:
             siamese_net = None
 
         # Load Spectral net
-        y_true = tf.placeholder(tf.float32, shape=(None, params['n_clusters']), name='y_true')
+        y_true = tf.placeholder(tf.float32, shape=(None, self.params['n_clusters']), name='y_true')
 
-        spectralnet_model_path = os.path.join(params['model_path'], 'spectral_net')
-        self.spectral_net = networks.SpectralNet(inputs, params['arch'],
-                                                 params.get('spec_reg'),
+        spectralnet_model_path = os.path.join(self.params['model_path'], 'spectral_net')
+        self.spectral_net = networks.SpectralNet(inputs, self.params['arch'],
+                                                 self.params.get('spec_reg'),
                                                  y_true, y_labeled_onehot,
-                                                 params['n_clusters'], params['affinity'], params['scale_nbr'],
-                                                 params['n_nbrs'], batch_sizes,
+                                                 self.params['n_clusters'], self.params['affinity'], self.params['scale_nbr'],
+                                                 self.params['n_nbrs'], batch_sizes,
                                                  spectralnet_model_path,
                                                  siamese_net, train=False
                                                  )
         # get final embeddings
-        self.km = joblib.load(os.path.join(params['model_path'], 'spectral_net', 'kmeans.sav'))
+        self.km = joblib.load(os.path.join(self.params['model_path'], 'spectral_net', 'kmeans.sav'))
 
-        self.confusion_matrix = joblib.load(os.path.join(params['model_path'], 'spectral_net', 'confusion_matrix.sav'))
-        self.params = params
+        self.confusion_matrix = joblib.load(os.path.join(self.params['model_path'], 'spectral_net', 'confusion_matrix.sav'))
+        self.self.params = self.params
         self.x_train = x_train
 
     def predict(self, X, feature_names):
         with graph.as_default():
-            x = np.concatenate([self.x_train, X], axis=0)
+            x_embedded = embed_if_needed(X, self.self.params)
+            x = np.concatenate([self.x_train, x_embedded], axis=0)
             x_spectralnet = self.spectral_net.predict_unlabelled(x)
 
             kmeans_assignments = self.km.predict(x_spectralnet)
-            y_spectralnet = get_y_preds_from_cm(kmeans_assignments, self.params['n_clusters'], self.confusion_matrix)
+            y_spectralnet = get_y_preds_from_cm(kmeans_assignments, self.self.params['n_clusters'], self.confusion_matrix)
             return y_spectralnet[-X.shape[0]:]
 
     def send_feedback(self, features, feature_names, reward, truth):

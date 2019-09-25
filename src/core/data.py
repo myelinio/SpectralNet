@@ -183,15 +183,7 @@ def get_base_data(params, data=None):
     print("Finsihed splitting data")
     # embed data in code space, if necessary
     all_data = [x_train, x_val, x_test, x_train_unlabeled, x_train_labeled, x_val_unlabeled, x_val_labeled]
-    if params.get('use_code_space'):
-        print("Started embedding data")
-        for i, d in enumerate(all_data):
-            all_data[i] = embed_data(d, params, dset=params['dset'])
-    else:
-        # otherwise just flatten it
-        print("Started flattening data")
-        for i, d in enumerate(all_data):
-            all_data[i] = all_data[i].reshape((-1, np.prod(all_data[i].shape[1:])))
+    embed_if_needed(all_data, params)
     x_train, x_val, x_test, x_train_unlabeled, x_train_labeled, x_val_unlabeled, x_val_labeled = all_data
     return y_train, x_train, p_train, \
            y_test, x_test, \
@@ -201,6 +193,18 @@ def get_base_data(params, data=None):
            y_train_unlabeled, x_train_unlabeled, \
            y_val_unlabeled, x_val_unlabeled, \
            train_val_split
+
+
+def embed_if_needed(all_data, params):
+    if params.get('use_code_space'):
+        print("Started embedding data")
+        for i, d in enumerate(all_data):
+            all_data[i] = embed_data(d, params, dset=params['dset'])
+    else:
+        # otherwise just flatten it
+        print("Started flattening data")
+        for i, d in enumerate(all_data):
+            all_data[i] = all_data[i].reshape((-1, np.prod(all_data[i].shape[1:])))
 
 
 def build_spectral_data(params, data=None):
@@ -326,7 +330,7 @@ def embed_data(x, params, dset):
         pt_ae = model_from_json(f.read())
     pt_ae.load_weights(weights_path)
 
-    x = x.reshape(-1, np.prod(x.shape[1:]))
+    x = x.reshape(-1, int(np.prod(x.shape[1:])))
 
     embedding_layer_index = int((len(pt_ae.layers) / 2) - 1)
     get_embeddings = K.function([pt_ae.input], [pt_ae.layers[embedding_layer_index].output])
