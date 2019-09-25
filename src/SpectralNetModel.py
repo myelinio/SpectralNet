@@ -39,7 +39,7 @@ class SpectralNetModel(object):
 
         x_train, y_train, x_val, y_val, x_test, y_test = data['spectral']['train_and_test']
 
-        x = x_train[:100]
+        x = x_train
         batch_sizes = {
             'Unlabeled': x.shape[0],
             'Labeled': x.shape[0],
