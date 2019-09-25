@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store29
+      name: axon-store30
     spec:
       storageClassName: nfs
       accessModes: ["ReadWriteMany"]
@@ -192,13 +192,13 @@ spec:
 
     - name: DeploySpectralNetModel
       deploy:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:c4bdc2f
-#        imageBuild:
-#          repositoryName: spectral-net-deploy
-#          artifact: spectral-net-source
-#          buildLocation: /src/src
-#          s2i:
-#            builderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-runtime-py3:v0.1.6
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:c4bdc2f
+        imageBuild:
+          repositoryName: spectral-net-deploy
+          artifact: spectral-net-source
+          buildLocation: /src/src
+          s2i:
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-runtime-py3:v0.1.6
         env:
           - name: LD_LIBRARY_PATH
             value: /usr/local/cuda/lib64/:/usr/local/cuda-10.0/compat/:/usr/local/nvidia/lib64:/usr/local/nvidia/bin

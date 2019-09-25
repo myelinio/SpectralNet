@@ -49,7 +49,6 @@ class DeployModel(object):
         x_train, y_train, x_val, y_val, x_test, y_test = data['spectral']['train_and_test']
 
         x = x_train[:100]
-        np.savetxt('spectralnet_input.txt', x)
         batch_sizes = {
             'Unlabeled': x.shape[0],
             'Labeled': x.shape[0],
@@ -91,17 +90,18 @@ class DeployModel(object):
         self.km = joblib.load(os.path.join(self.params['model_path'], 'spectral_net', 'kmeans.sav'))
 
         self.confusion_matrix = joblib.load(os.path.join(self.params['model_path'], 'spectral_net', 'confusion_matrix.sav'))
-        self.self.params = self.params
         self.x_train = x_train
 
     def predict(self, X, feature_names):
         with graph.as_default():
-            x_embedded = embed_if_needed(X, self.self.params)
+            data = [X]
+            embed_if_needed(data, self.params)
+            x_embedded = data[0]
             x = np.concatenate([self.x_train, x_embedded], axis=0)
             x_spectralnet = self.spectral_net.predict_unlabelled(x)
 
             kmeans_assignments = self.km.predict(x_spectralnet)
-            y_spectralnet = get_y_preds_from_cm(kmeans_assignments, self.self.params['n_clusters'], self.confusion_matrix)
+            y_spectralnet = get_y_preds_from_cm(kmeans_assignments, self.params['n_clusters'], self.confusion_matrix)
             return y_spectralnet[-X.shape[0]:]
 
     def send_feedback(self, features, feature_names, reward, truth):
