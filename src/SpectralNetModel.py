@@ -5,7 +5,7 @@ import joblib
 
 from applications.config import get_spectralnet_config
 from core import networks
-from core.data import build_spectral_data, embed_if_needed
+from core.data import build_spectral_data, embed_if_needed, load_spectral_data
 from core.util import get_y_preds_from_cm
 import tensorflow as tf
 import keras.backend.tensorflow_backend as ktf
@@ -33,7 +33,7 @@ class SpectralNetModel(object):
         self.params = get_spectralnet_config(args)
 
         # LOAD DATA
-        data = build_spectral_data(self.params)
+        data = load_spectral_data(self.params['data_path'], args.dset)
 
         ktf.set_session(get_session(args.gpu_memory_fraction))
 
@@ -77,11 +77,8 @@ class SpectralNetModel(object):
                                                  spectralnet_model_path,
                                                  siamese_net, train=False
                                                  )
-        # get final embeddings
-        self.km = joblib.load(os.path.join(self.params['model_path'], 'spectral_net', 'kmeans.sav'))
-
-        self.confusion_matrix = joblib.load(os.path.join(self.params['model_path'], 'spectral_net', 'confusion_matrix.sav'))
         self.x_train = x_train
+        self.clustering_algo = joblib.load(os.path.join(self.params['model_path'], 'spectral_net', 'clustering_aglo.sav'))
 
     def predict(self, X, feature_names):
         with graph.as_default():
@@ -91,8 +88,7 @@ class SpectralNetModel(object):
             x = np.concatenate([self.x_train, x_embedded], axis=0)
             x_spectralnet = self.spectral_net.predict_unlabelled(x)
 
-            kmeans_assignments = self.km.predict(x_spectralnet)
-            y_spectralnet = get_y_preds_from_cm(kmeans_assignments, self.params['n_clusters'], self.confusion_matrix)
+            y_spectralnet = self.clustering_algo.predict(x_spectralnet)
             return y_spectralnet[-X.shape[0]:]
 
     def send_feedback(self, features, feature_names, reward, truth):
