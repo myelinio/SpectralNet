@@ -1,6 +1,6 @@
 scikit-learn
 tensorflow==1.13.1
-keras
+keras==2.2.4
 munkres
 annoy
 h5py

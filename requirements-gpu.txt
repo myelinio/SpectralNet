@@ -1,5 +1,5 @@
 scikit-learn
-keras
+keras==2.2.4
 munkres
 annoy
 h5py

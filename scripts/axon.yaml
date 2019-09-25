@@ -15,17 +15,28 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store24
+      name: axon-store28
     spec:
-      storageClassName: standard
-      accessModes: ["ReadWriteOnce"]
+      storageClassName: nfs
+      accessModes: ["ReadWriteMany"]
       resources:
         requests:
-          storage: 5Gi
+          storage: 1Gi
+
+#  volumeClaimTemplate:
+#    metadata:
+#      name: axon-store25
+#    spec:
+#      storageClassName: standard
+#      accessModes: ["ReadWriteOnce"]
+#      resources:
+#        requests:
+#          storage: 5Gi
+  
   tasks:
     - name: DataPrep
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:8c2ffc7
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:4ee4bb8
         imageBuild:
           repositoryName: data-preprocess
           artifact: spectral-net-source
@@ -44,7 +55,7 @@ spec:
 
     - name: DataPrepAutoEncoder
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:8c2ffc7
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:4ee4bb8
         imageBuild:
           repositoryName: autoencoder-preprocess
           artifact: spectral-net-source
@@ -63,7 +74,7 @@ spec:
 
     - name: TrainAutoencoderModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:8c2ffc7
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:4ee4bb8
         imageBuild:
           repositoryName: autoencoder-train-gpu
           artifact: spectral-net-source
@@ -88,7 +99,7 @@ spec:
 
     - name: DataPrepSiamese
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:8c2ffc7
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:4ee4bb8
         imageBuild:
           repositoryName: siamese-preprocess
           artifact: spectral-net-source
@@ -115,7 +126,7 @@ spec:
 
     - name: TrainSiameseModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:8c2ffc7
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:4ee4bb8
         imageBuild:
           repositoryName: siamese-train-gpu
           artifact: spectral-net-source
@@ -140,7 +151,7 @@ spec:
 
     - name: DataPrepSpectralNet
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:8c2ffc7
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:4ee4bb8
         imageBuild:
           repositoryName: spectral-net-preprocess
           artifact: spectral-net-source
@@ -165,7 +176,7 @@ spec:
 
     - name: TrainSpectralNetModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:8c2ffc7
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:4ee4bb8
         imageBuild:
           repositoryName: spectral-net-train-gpu
           artifact: spectral-net-source
@@ -191,7 +202,7 @@ spec:
 
     - name: DeploySpectralNetModel
       deploy:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:5825c03
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:4ee4bb8
         imageBuild:
           repositoryName: spectral-net-deploy
           artifact: spectral-net-source
