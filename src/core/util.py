@@ -195,10 +195,10 @@ def calculate_cost_matrix(C, n_clusters):
 
 def get_cluster_labels_from_indices(indices):
     n_clusters = len(indices)
-    clusterLabels = np.zeros(n_clusters)
+    cluster_labels = np.zeros(n_clusters)
     for i in range(n_clusters):
-        clusterLabels[i] = indices[i][1]
-    return clusterLabels
+        cluster_labels[i] = indices[i][1]
+    return cluster_labels
 
 
 def get_accuracy(cluster_assignments, y_true, n_clusters):
@@ -213,7 +213,7 @@ def get_accuracy(cluster_assignments, y_true, n_clusters):
     returns:    a tuple containing the accuracy and confusion matrix,
                 in that order
     """
-    y_pred, confusion_matrix = get_y_preds(cluster_assignments, y_true, n_clusters)
+    y_pred, confusion_matrix,_ = get_y_preds(cluster_assignments, y_true, n_clusters)
     # calculate the accuracy
     return np.mean(y_pred == y_true), confusion_matrix
 
@@ -247,7 +247,6 @@ def get_cluster_sols(x, cluster_obj=None, ClusterClass=None, n_clusters=None, in
     """
     # if provided_cluster_obj is None, we must have both ClusterClass and n_clusters
     assert not (cluster_obj is None and (ClusterClass is None or n_clusters is None))
-    cluster_assignments = None
     if cluster_obj is None:
         cluster_obj = ClusterClass(n_clusters, **init_args)
         for _ in range(10):
@@ -281,7 +280,7 @@ def get_y_preds(cluster_assignments, y_true, n_clusters):
     indices = Munkres().compute(cost_matrix)
     kmeans_to_true_cluster_labels = get_cluster_labels_from_indices(indices)
     y_pred = kmeans_to_true_cluster_labels[cluster_assignments]
-    return y_pred, confusion_matrix
+    return y_pred, confusion_matrix, kmeans_to_true_cluster_labels
 
 
 def get_y_preds_from_cm(cluster_assignments, n_clusters, confusion_matrix):
@@ -300,7 +299,7 @@ def get_y_preds_from_cm(cluster_assignments, n_clusters, confusion_matrix):
     indices = Munkres().compute(cost_matrix)
     kmeans_to_true_cluster_labels = get_cluster_labels_from_indices(indices)
     y_pred = kmeans_to_true_cluster_labels[cluster_assignments]
-    return y_pred
+    return y_pred, kmeans_to_true_cluster_labels
 
 
 def grassmann(A, B):

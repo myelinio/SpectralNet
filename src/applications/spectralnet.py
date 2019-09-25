@@ -7,13 +7,14 @@ import numpy as np
 import tensorflow as tf
 from keras.layers import Input
 from sklearn.cluster import KMeans
+from sklearn.externals import joblib
+from sklearn.metrics import normalized_mutual_info_score as nmi
 from sklearn.preprocessing import OneHotEncoder
 
 from core import networks
+from core.clustering import ClusteringAlgorithm
 from core.data import concatenate
-from core.util import print_accuracy, get_cluster_sols, get_y_preds
-from sklearn.externals import joblib
-from sklearn.metrics import normalized_mutual_info_score as nmi
+from core.util import print_accuracy
 
 
 def run_net(data, params, train=True):
@@ -84,14 +85,23 @@ def run_net(data, params, train=True):
     # get final embeddings
     x_spectralnet = spectral_net.predict(x)
 
-    # get accuracy and nmi
-    kmeans_assignments, km = get_cluster_sols(x_spectralnet, ClusterClass=KMeans, n_clusters=params['n_clusters'],
+    #########
+    # kmeans_assignments, km = get_cluster_sols(x_spectralnet, ClusterClass=KMeans, n_clusters=params['n_clusters'],
+    #                                           init_args={'n_init': 10})
+    # joblib.dump(km, os.path.join(params['model_path'], 'spectral_net', 'kmeans.sav'))
+    #
+    # y_spectralnet, confusion_matrix = get_y_preds(kmeans_assignments, y, params['n_clusters'])
+    #########
+
+    clustering_algo = ClusteringAlgorithm(ClusterClass=KMeans, n_clusters=params['n_clusters'],
                                               init_args={'n_init': 10})
-    joblib.dump(km, os.path.join(params['model_path'], 'spectral_net', 'kmeans.sav'))
+    clustering_algo.fit(x_spectralnet, y)
 
-    y_spectralnet, confusion_matrix = get_y_preds(kmeans_assignments, y, params['n_clusters'])
-    joblib.dump(confusion_matrix, os.path.join(params['model_path'], 'spectral_net', 'confusion_matrix.sav'))
+    # get accuracy and nmi
+    joblib.dump(clustering_algo, os.path.join(params['model_path'], 'spectral_net', 'clustering_aglo.sav'))
 
+    kmeans_assignments = clustering_algo.predict_cluster_assignments(x_spectralnet)
+    y_spectralnet = clustering_algo.predict(x_spectralnet)
     print_accuracy(kmeans_assignments, y, params['n_clusters'])
     nmi_score = nmi(kmeans_assignments, y)
     print('NMI: ' + str(np.round(nmi_score, 3)))

@@ -100,13 +100,8 @@ def run_predict(params):
     x_spectralnet = spectral_net.predict_unlabelled(x)
     W = spectral_net.run_tensor(x, W_tensor)
     print('x_spectralnet', x_spectralnet.shape)
-    km = joblib.load(os.path.join(params['model_path'], 'spectral_net', 'kmeans.sav'))
-    kmeans_assignments = km.predict(x_spectralnet)
-
-    confusion_matrix = joblib.load(os.path.join(params['model_path'], 'spectral_net', 'confusion_matrix.sav'))
-
-    y_spectralnet = get_y_preds_from_cm(kmeans_assignments, params['n_clusters'], confusion_matrix)
-
+    clustering_algo = joblib.load(os.path.join(params['model_path'], 'spectral_net', 'clustering_aglo.sav'))
+    y_spectralnet = clustering_algo.predict(x_spectralnet)
     return x_spectralnet, y_spectralnet, W
 
 # RUN EXPERIMENT

@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store30
+      name: axon-store31
     spec:
       storageClassName: nfs
       accessModes: ["ReadWriteMany"]
