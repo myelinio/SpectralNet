@@ -1,18 +1,15 @@
-import argparse
 import collections
+import os
 
 import joblib
+import keras.backend.tensorflow_backend as ktf
+import numpy as np
+import tensorflow as tf
+from keras.layers import Input
 
 from applications.config import get_spectralnet_config
 from core import networks
-from core.data import build_spectral_data, embed_if_needed, load_spectral_data
-from core.util import get_y_preds_from_cm
-import tensorflow as tf
-import keras.backend.tensorflow_backend as ktf
-import os
-from keras.layers import Input
-import numpy as np
-
+from core.data import embed_if_needed, load_spectral_data
 
 Args = collections.namedtuple('Args', 'gpu gpu_memory_fraction dset')
 

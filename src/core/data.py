@@ -3,6 +3,7 @@ data.py: contains all data generating code for datasets used in the script
 """
 
 import os
+import pickle
 
 import h5py
 import numpy as np
@@ -103,7 +104,7 @@ def build_siamese_data(params, data=None):
     y_val_labeled, x_val_labeled, \
     y_train_unlabeled, x_train_unlabeled, \
     y_val_unlabeled, x_val_unlabeled, \
-    train_val_split = get_base_data(params, data)
+    train_val_split = get_common_data(params, data)
 
     print("Getting siamese data")
 
@@ -111,7 +112,7 @@ def build_siamese_data(params, data=None):
                             x_train_unlabeled, x_val_unlabeled, p_train, p_val, train_val_split)
 
 
-def get_base_data(params, data=None):
+def get_common_data(params, data=None):
     """
     Convenience function: preprocesses all data in the manner specified in params, and returns it
     as a nested dict with the following keys:
@@ -207,6 +208,14 @@ def embed_if_needed(all_data, params):
             all_data[i] = all_data[i].reshape((-1, np.prod(all_data[i].shape[1:])))
 
 
+def load_base_data(params, dset):
+    data_path = os.path.join(params['base_data_path'], '%s_data.pkl' % dset)
+    file = open(data_path, 'rb')
+    data = pickle.load(file)
+    file.close()
+    return data
+
+
 def build_spectral_data(params, data=None):
     """
     Convenience function: preprocesses all data in the manner specified in params, and returns it
@@ -230,7 +239,7 @@ def build_spectral_data(params, data=None):
     y_val_labeled, x_val_labeled, \
     y_train_unlabeled, x_train_unlabeled, \
     y_val_unlabeled, x_val_unlabeled, \
-    train_val_split = get_base_data(params, data)
+    train_val_split = get_common_data(params, data)
 
     # collect everything into a dictionary
     spectral_dict = {}
@@ -344,6 +353,40 @@ def embed_data(x, params, dset):
     del pt_ae
 
     return x_embedded
+
+
+def decode_data(x, params, dset):
+    '''
+    Convenience function: embeds x into the code space using the corresponding
+    autoencoder (specified by dset).
+    '''
+    if not len(x):
+        return np.zeros(shape=(0, 10))
+    if dset == 'reuters':
+        dset = 'reuters10k'
+
+    json_path = 'pretrain_weights/ae_{}.json'.format(dset)
+    weights_path = 'pretrain_weights/ae_{}_weights.h5'.format(dset)
+    # weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
+
+    with open(json_path) as f:
+        pt_ae = model_from_json(f.read())
+    pt_ae.load_weights(weights_path)
+
+    x = x.reshape(-1, int(np.prod(x.shape[1:])))
+
+    embedding_layer_index = int((len(pt_ae.layers) / 2) - 1)
+    get_embeddings = K.function([pt_ae.input], [pt_ae.layers[embedding_layer_index].output])
+
+    get_reconstruction = K.function([pt_ae.layers[embedding_layer_index + 1].input], [pt_ae.output])
+    x_embedded = predict_with_K_fn(get_embeddings, x)[0]
+    x_recon = predict_with_K_fn(get_reconstruction, x_embedded)[0]
+    reconstruction_mse = np.mean(np.square(x - x_recon))
+    print("using pretrained embeddings; sanity check, total reconstruction error:", np.mean(reconstruction_mse))
+
+    del pt_ae
+
+    return x_recon
 
 
 def predict_with_K_fn(K_fn, x, bs=1000):

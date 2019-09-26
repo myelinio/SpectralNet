@@ -18,7 +18,6 @@ from core.util import print_accuracy
 
 
 def run_net(data, params, train=True):
-
     # Unpack data
     x_train, y_train, x_val, y_val, x_test, y_test = data['spectral']['train_and_test']
     x_train_unlabeled, y_train_unlabeled, x_train_labeled, y_train_labeled = data['spectral'][
@@ -55,6 +54,8 @@ def run_net(data, params, train=True):
     # run only if we are using a siamese network
     if params['affinity'] == 'siamese':
         siamese_model_path = params['siamese_model_path']
+        if not os.path.isfile(os.path.join(siamese_model_path, "model.h5")):
+            raise Exception("siamese_model_path %s does not exist" % siamese_model_path)
         siamese_net = networks.SiameseNet(inputs, params['arch'], params.get('siam_reg'), y_true, siamese_model_path)
     else:
         siamese_net = None
@@ -85,16 +86,8 @@ def run_net(data, params, train=True):
     # get final embeddings
     x_spectralnet = spectral_net.predict(x)
 
-    #########
-    # kmeans_assignments, km = get_cluster_sols(x_spectralnet, ClusterClass=KMeans, n_clusters=params['n_clusters'],
-    #                                           init_args={'n_init': 10})
-    # joblib.dump(km, os.path.join(params['model_path'], 'spectral_net', 'kmeans.sav'))
-    #
-    # y_spectralnet, confusion_matrix = get_y_preds(kmeans_assignments, y, params['n_clusters'])
-    #########
-
     clustering_algo = ClusteringAlgorithm(ClusterClass=KMeans, n_clusters=params['n_clusters'],
-                                              init_args={'n_init': 10})
+                                          init_args={'n_init': 10})
     clustering_algo.fit(x_spectralnet, y)
 
     # get accuracy and nmi

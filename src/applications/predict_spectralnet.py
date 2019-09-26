@@ -15,8 +15,8 @@ from sklearn.externals import joblib
 
 from applications.config import get_spectralnet_config
 from core import networks, costs
-from core.data import build_spectral_data, build_siamese_data
-from core.util import get_y_preds_from_cm, get_scale
+from core.data import build_siamese_data, load_spectral_data, decode_data, load_base_data, build_spectral_data, \
+    load_data
 
 # PARSE ARGUMENTS
 parser = argparse.ArgumentParser()
@@ -26,9 +26,16 @@ parser.add_argument('--dset', type=str, help='dataset to use', default='mnist')
 args = parser.parse_args()
 
 params = get_spectralnet_config(args)
+params['train_set_fraction'] = 1
 
 # LOAD DATA
-data = build_spectral_data(params)
+base_data = load_data(params)
+data = build_spectral_data(params, base_data)
+#
+# params_noencode = params.copy()
+# params_noencode['use_code_space'] = False
+# # base_data = load_data(params_noencode)
+# origin_data = build_spectral_data(params_noencode, base_data)
 
 
 def get_session(gpu_fraction=0.333):
@@ -38,6 +45,7 @@ def get_session(gpu_fraction=0.333):
 
 
 ktf.set_session(get_session(args.gpu_memory_fraction))
+
 
 x_train, y_train, x_val, y_val, x_test, y_test = data['spectral']['train_and_test']
 x_train_unlabeled, y_train_unlabeled, x_train_labeled, y_train_labeled = data['spectral'][
@@ -53,7 +61,7 @@ if 'siamese' in params['affinity']:
 # y = np.ones((10, 1))
 
 # x = np.concatenate([x_train, np.ones((10, 2))], axis=0)
-x = x_train[:100]
+x = x_train
 np.savetxt('spectralnet_input.txt', x)
 batch_sizes = {
     'Unlabeled': x.shape[0],
@@ -102,10 +110,11 @@ def run_predict(params):
     print('x_spectralnet', x_spectralnet.shape)
     clustering_algo = joblib.load(os.path.join(params['model_path'], 'spectral_net', 'clustering_aglo.sav'))
     y_spectralnet = clustering_algo.predict(x_spectralnet)
-    return x_spectralnet, y_spectralnet, W
+    x_dec = decode_data(x, params, params['dset'])
+    return x_spectralnet, y_spectralnet, x_spectralnet, W
 
 # RUN EXPERIMENT
-x_spectralnet, y_spectralnet, W = run_predict(params)
+x_spectralnet, y_spectralnet, x, W = run_predict(params)
 if args.dset in ['cc', 'cc_semisup']:
     # run plotting script
     import plot_2d

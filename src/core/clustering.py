@@ -17,7 +17,6 @@ class ClusteringAlgorithm:
         n_clusters:     number of clusters in the dataset, necessary
                         if instantiating new clustering class
         init_args:      any initialization arguments passed to ClusterClass
-
         """
         self.cluster_obj = cluster_obj
         self.n_clusters = n_clusters
@@ -28,9 +27,6 @@ class ClusteringAlgorithm:
         self.kmeans_to_true_cluster_labels = None
 
     def fit(self, x, y):
-        """
-        x:              the points with which to perform clustering
-        """
         if self.cluster_obj is None:
             self.cluster_obj = self.ClusterClass(self.n_clusters, **self.init_args)
             for _ in range(10):

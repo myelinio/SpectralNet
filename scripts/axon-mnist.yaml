@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store33
+      name: axon-store34
     spec:
       storageClassName: nfs
       accessModes: ["ReadWriteMany"]
@@ -41,7 +41,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
     - name: DataPrepAutoEncoder
       container:
@@ -60,7 +60,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
     - name: TrainAutoencoderModel
       train:
@@ -79,7 +79,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.50"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -104,7 +104,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -131,7 +131,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -156,7 +156,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -181,7 +181,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
 
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
@@ -207,7 +207,7 @@ spec:
           - name: GPU_MEMORY_FRACTION
             value: "0.9"
           - name: DATA_SET
-            value: cc
+            value: mnist
         nodeSelector:
           cloud.google.com/gke-accelerator: "nvidia-tesla-p4"
         resources:

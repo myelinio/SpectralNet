@@ -5,7 +5,7 @@ import argparse
 import pickle
 
 from applications.config import get_spectralnet_config
-from core.data import build_spectral_data
+from core.data import build_spectral_data, load_base_data
 import os
 import h5py
 
@@ -18,11 +18,6 @@ args = parser.parse_args()
 
 params = get_spectralnet_config(args)
 
-data_path = os.path.join(params['base_data_path'], '%s_data.pkl' % args.dset)
-file = open(data_path, 'rb')
-data = pickle.load(file)
-file.close()
-
 if params.get('use_code_space'):
     import keras.backend.tensorflow_backend as ktf
     import tensorflow as tf
@@ -33,8 +28,8 @@ if params.get('use_code_space'):
         return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
     ktf.set_session(get_session(args.gpu_memory_fraction))
 
-# LOAD DATA
-data = build_spectral_data(params, data)
+base_data = load_base_data(params, args.dset)
+data = build_spectral_data(params, base_data)
 
 data_path = os.path.join(params['data_path'], '%s_spectralnet.hdf5' % args.dset)
 if not os.path.exists(params['data_path']):
