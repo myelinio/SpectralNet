@@ -5,7 +5,7 @@ import argparse
 import pickle
 
 from applications.config import get_siamese_config
-from core.data import build_siamese_data
+from core.data import build_siamese_data, load_base_data
 import os
 import h5py
 
@@ -18,13 +18,9 @@ args = parser.parse_args()
 
 params = get_siamese_config(args)
 
-data_path = os.path.join(params['base_data_path'], '%s_data.pkl' % args.dset)
-file = open(data_path, 'rb')
-data = pickle.load(file)
-file.close()
-
+base_data = load_base_data(params, args.dset)
 # LOAD DATA
-data = build_siamese_data(params, data)
+data = build_siamese_data(params, base_data)
 
 if params.get('use_code_space'):
     import keras.backend.tensorflow_backend as ktf

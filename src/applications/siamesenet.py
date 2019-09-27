@@ -3,10 +3,8 @@ spectralnet.py: contains run function for spectralnet
 """
 import os
 
-import numpy as np
 import tensorflow as tf
 from keras.layers import Input
-
 from core import networks
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
@@ -52,3 +50,40 @@ def run_net(data, params):
     if not os.path.isdir(siamese_model_path):
         os.makedirs(siamese_model_path)
     siamese_net.save_model()
+
+    # from time import time
+    # import matplotlib.pyplot as plt
+    # from sklearn import manifold
+    # from applications.plot_embedding import plot_embedding
+    # from core.data import get_common_data, load_base_data
+    # y_train, x_train, p_train, \
+    # y_test, x_test, \
+    # y_val, x_val, p_val, \
+    # y_train_labeled, x_train_labeled, \
+    # y_val_labeled, x_val_labeled, \
+    # y_train_unlabeled, x_train_unlabeled, \
+    # y_val_unlabeled, x_val_unlabeled, \
+    # train_val_split = get_common_data(params, load_base_data(params, params['dset']))
+    #
+    # sample_size = 1000
+    # x_test = x_val[:sample_size, :]
+    # y_test = y_val[:sample_size]
+    # x_affinity = siamese_net.predict(x_test, batch_sizes)
+    #
+    # # ----------------------------------------------------------------------
+    # # t-SNE embedding of the digits dataset
+    # print("Computing t-SNE embedding")
+    # tsne = manifold.TSNE(n_components=2, init='pca', random_state=0)
+    # t0 = time()
+    # X_tsne = tsne.fit_transform(x_test)
+    # X_affinity_tsne = tsne.fit_transform(x_affinity)
+    #
+    # plot_embedding(X_tsne,
+    #                y_test,
+    #                "t-SNE embedding of the digits - original (time %.2fs)" %
+    #                (time() - t0))
+    # plot_embedding(X_affinity_tsne,
+    #                y_test,
+    #                "t-SNE embedding of the digits - siamese (time %.2fs)" %
+    #                (time() - t0))
+    # plt.show()
