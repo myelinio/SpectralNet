@@ -13,6 +13,7 @@ import tensorflow as tf
 from keras.layers import Input
 from sklearn.externals import joblib
 
+from SpectralNetModel import SpectralNetModel
 from applications.config import get_spectralnet_config
 from core import networks
 from core.data import build_spectral_data, embed_if_needed
@@ -109,4 +110,4 @@ class DeployModel(object):
 
 
 if __name__ == '__main__':
-    d = DeployModel()
+    d = SpectralNetModel()

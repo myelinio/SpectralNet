@@ -135,7 +135,8 @@ def predict(predict_var, x_unlabeled, inputs, y_true, batch_sizes,
     y_preds = []
     # predict over all points
     for i, (batch_start, batch_end) in enumerate(batches):
-        feed_dict = {K.learning_phase(): 0}
+        # feed_dict = {K.learning_phase(): 0}
+        feed_dict = {}
 
         # feed corresponding input for each input_type
         for input_type, input_placeholder in inputs.items():
@@ -158,6 +159,7 @@ def predict(predict_var, x_unlabeled, inputs, y_true, batch_sizes,
                 raise Exception("Unrecognized feed name ['{}']".format(input_type))
 
         # evaluate the batch
+        # _ = K.get_session().run(K.tf.get_default_graph().get_tensor_by_name("ortho_weights_update:0"), feed_dict=feed_dict)
         y_pred_batch = np.asarray(K.get_session().run(predict_var, feed_dict=feed_dict))
         y_preds.append(y_pred_batch)
 
@@ -200,7 +202,8 @@ def predict_unlabelled(predict_var, x_unlabeled, inputs, batch_sizes):
     y_preds = []
     # predict over all points
     for i, (batch_start, batch_end) in enumerate(batches):
-        feed_dict = {K.learning_phase(): 0}
+        # feed_dict = {K.learning_phase(): 0}
+        feed_dict = {}
 
         # feed corresponding input for each input_type
         for input_type, input_placeholder in inputs.items():
@@ -218,7 +221,7 @@ def predict_unlabelled(predict_var, x_unlabeled, inputs, batch_sizes):
                 raise Exception("Unrecognized feed name ['{}']".format(input_type))
 
         # evaluate the batch
-        _ = K.get_session().run(K.tf.get_default_graph().get_tensor_by_name("ortho_weights_update:0"), feed_dict=feed_dict)
+        ow = K.get_session().run(K.tf.get_default_graph().get_tensor_by_name("ortho_weights_update:0"), feed_dict=feed_dict)
         y_pred_batch = np.asarray(K.get_session().run(predict_var, feed_dict=feed_dict))
         y_preds.append(y_pred_batch)
 

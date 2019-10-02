@@ -4,10 +4,13 @@ import logging
 
 from flask_cors import CORS
 
+import SpectralNetModel
+from SpectralNetModel import SpectralNetModel
 from applications.rest_spectralnet import DeployModel
 from flask import Flask, request, jsonify
 import argparse
 import numpy as np
+import os
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -15,7 +18,11 @@ logger.setLevel(logging.INFO)
 app = Flask(__name__)
 CORS(app)
 
-user_model = DeployModel()
+os.environ['GPU'] = "0"
+os.environ['GPU_MEMORY_FRACTION'] = "0"
+os.environ['DATA_SET'] = "mnist"
+os.environ['BATCH_SIZE'] = "10"
+user_model = SpectralNetModel()
 
 
 @app.route("/predict", methods=["GET", "POST"])

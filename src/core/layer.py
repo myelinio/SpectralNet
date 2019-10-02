@@ -49,8 +49,8 @@ def Orthonorm(X, name=None):
     ortho_weights_store = K.variable(np.zeros((d, d)))
     # create op that saves matrix into variable
     ortho_weights_update = tf.assign(ortho_weights_store, ortho_weights, name='ortho_weights_update')
-    # switch between stored and calculated weights based on training or validation
 
+    # switch between stored and calculated weights based on training or validation
     def f(t):
         return K.in_train_phase(K.dot(t, ortho_weights), K.dot(t, ortho_weights_store))
     l = Lambda(lambda x: f(x), name=name)

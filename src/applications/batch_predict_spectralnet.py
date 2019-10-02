@@ -13,24 +13,25 @@ import tensorflow as tf
 from keras.layers import Input
 from sklearn.externals import joblib
 
-from applications.config import get_spectralnet_config
+from applications.config import get_spectralnet_config, get_siamese_config
 from core import networks, costs
 from core.data import build_siamese_data, load_spectral_data, decode_data, load_base_data, build_spectral_data, \
-    load_data
+    load_data, load_siamese_data
 
 # PARSE ARGUMENTS
+from core.util import print_accuracy
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=str, help='gpu number to use', default='')
-parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to use', default='1.0')
+parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to use', default='0.8')
 parser.add_argument('--dset', type=str, help='dataset to use', default='mnist')
 args = parser.parse_args()
 
 params = get_spectralnet_config(args)
-params['train_set_fraction'] = 1
+params['train_set_fraction'] = 0.8
+data = load_spectral_data(params['data_path'], args.dset)
 
-# LOAD DATA
-base_data = load_data(params)
-data = build_spectral_data(params, base_data)
+
 #
 # params_noencode = params.copy()
 # params_noencode['use_code_space'] = False
@@ -53,7 +54,7 @@ x_train_unlabeled, y_train_unlabeled, x_train_labeled, y_train_labeled = data['s
 x_val_unlabeled, y_val_unlabeled, x_val_labeled, y_val_labeled = data['spectral']['val_unlabeled_and_labeled']
 
 if 'siamese' in params['affinity']:
-    siamese_data = build_siamese_data(params)
+    siamese_data = load_siamese_data(get_siamese_config(args)['data_path'], args.dset)
     pairs_train, dist_train, pairs_val, dist_val = siamese_data['train_and_test']
 
 
@@ -61,7 +62,8 @@ if 'siamese' in params['affinity']:
 # y = np.ones((10, 1))
 
 # x = np.concatenate([x_train, np.ones((10, 2))], axis=0)
-x = x_train
+x = x_val[:100]
+y = y_val[:100]
 np.savetxt('spectralnet_input.txt', x)
 batch_sizes = {
     'Unlabeled': x.shape[0],
@@ -109,8 +111,11 @@ def run_predict(params):
     W = spectral_net.run_tensor(x, W_tensor)
     print('x_spectralnet', x_spectralnet.shape)
     clustering_algo = joblib.load(os.path.join(params['model_path'], 'spectral_net', 'clustering_aglo.sav'))
+
+    kmeans_assignments = clustering_algo.predict_cluster_assignments(x_spectralnet)
     y_spectralnet = clustering_algo.predict(x_spectralnet)
-    x_dec = decode_data(x, params, params['dset'])
+    print_accuracy(kmeans_assignments, y, params['n_clusters'])
+    # x_dec = decode_data(x, params, params['dset'])
     return x_spectralnet, y_spectralnet, x_spectralnet, W
 
 # RUN EXPERIMENT

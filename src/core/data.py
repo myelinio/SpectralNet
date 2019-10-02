@@ -89,6 +89,7 @@ def concatenate(data_list):
     else:
         return np.concatenate(data_list_filtered, axis=0)
 
+
 def build_siamese_data(params, data=None):
     """
         the data used for siamese net, if the architecture uses the siamese net 'siamese'
