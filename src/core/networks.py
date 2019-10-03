@@ -219,6 +219,8 @@ class SpectralNet:
             K.get_session().run(tf.variables_initializer(self.net.trainable_weights))
             # K.get_session().run(tf.global_variables_initializer())
 
+        self.net.summary()
+
     def train(self, x_train_unlabeled, x_train_labeled, x_val_unlabeled,
               lr, drop, patience, num_epochs):
         # create handler for early stopping and learning rate scheduling

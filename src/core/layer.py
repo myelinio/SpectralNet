@@ -3,6 +3,7 @@ layer.py: contains functions used to build all spectral and siamese net models
 """
 import numpy as np
 from keras import backend as K
+from keras.engine import Layer
 from keras.layers import Dense, BatchNormalization, Flatten, Conv2D, MaxPooling2D, Lambda, Dropout
 from keras.regularizers import l2
 import tensorflow as tf
@@ -25,7 +26,7 @@ def orthonorm_op(x, epsilon=1e-7):
     # return ortho_weights
 
     x_2 = K.dot(K.transpose(x), x)
-    x_2 += K.eye(K.int_shape(x)[1])*epsilon
+    x_2 = tf.add(x_2, K.eye(K.int_shape(x)[1])*epsilon, name="pre_cholesky")
     L = tf.cholesky(x_2)
     ortho_weights = tf.transpose(tf.matrix_inverse(L)) * tf.sqrt(tf.cast(tf.shape(x)[0], dtype=K.floatx()))
     return ortho_weights
@@ -57,6 +58,45 @@ def Orthonorm(X, name=None):
 
     l.add_update(ortho_weights_update)
     return l
+
+
+class MyOrtho(Layer):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # self.units = units
+
+    def build(self, batch_input_shape):
+        units = batch_input_shape[-1]
+        self.ortho_weights_store = self.add_weight(
+            name="ortho_weights", shape=[units, units],
+            initializer="zeros", trainable=False)
+        super().build(batch_input_shape)  # must be at the end
+
+    def call(self, X, training=None):
+        # if training:
+        #     ortho_weights = orthonorm_op(X)
+        # else:
+        #     ortho_weights = self.ortho_weights_store
+        if training in {0, False}:
+            return  K.dot(X, self.ortho_weights_store)
+
+        ortho_weights = orthonorm_op(X)
+        # self.ortho_weights_store = orthonorm_op(X)
+        # return K.dot(X, self.ortho_weights_store)
+
+        def ortho_inference():
+            return K.dot(X, ortho_weights)
+
+        def ortho_training():
+            return K.dot(X, self.ortho_weights_store)
+        ortho_weights_update = tf.assign(self.ortho_weights_store, ortho_weights, name='ortho_weights_update')
+        self.add_update(ortho_weights_update)
+
+        return K.in_train_phase(ortho_training,
+                                ortho_inference,
+                                training=training)
+    def compute_output_shape(self, batch_input_shape):
+        return tf.TensorShape(list(batch_input_shape)[:-1] + [batch_input_shape[-1]])
 
 
 def stack_layers(inputs, layers, kernel_initializer='glorot_uniform'):
@@ -123,12 +163,12 @@ def stack_layers(inputs, layers, kernel_initializer='glorot_uniform'):
         elif layer['type'] == 'Flatten':
             l = Flatten(name=layer.get('name'))
         elif layer['type'] == 'Orthonorm':
-            l = Orthonorm(outputs['Orthonorm'], name=layer.get('name'));
+            l = MyOrtho(name=layer.get('name'))
         else:
             raise ValueError("Invalid layer type '{}'".format(layer['type']))
 
         # apply the layer to each input in inputs
         for k in outputs:
-            outputs[k] = l(outputs[ k])
+            outputs[k] = l(outputs[k])
 
     return outputs

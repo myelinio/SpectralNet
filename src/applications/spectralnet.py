@@ -15,6 +15,7 @@ from core import networks
 from core.clustering import ClusteringAlgorithm
 from core.data import concatenate
 from core.util import print_accuracy
+from keras import backend as K
 
 
 def run_net(data, params, train=True):
@@ -70,6 +71,7 @@ def run_net(data, params, train=True):
                                         siamese_net, True, x_train, len(x_train_labeled),
                                         )
     if train:
+        K.set_learning_phase(1)
         spectral_net.train(
             x_train_unlabeled, x_train_labeled, x_val_unlabeled,
             params['spec_lr'], params['spec_drop'], params['spec_patience'],

@@ -11,6 +11,7 @@ from keras import backend as K
 from applications.config import get_spectralnet_config
 from core import networks
 from core.data import embed_if_needed, load_spectral_data
+from core.util import print_accuracy
 
 Args = collections.namedtuple('Args', 'gpu gpu_memory_fraction dset batch_size')
 
@@ -39,16 +40,15 @@ class SpectralNetModel(object):
 
         x_train, y_train, x_val, y_val, x_test, y_test = data['spectral']['train_and_test']
 
-        x = x_train[:1000]
-        y = y_train[:1000]
-        batch_size = x.shape[0]
+        self.batch_size = args.batch_size
+        self.x_train = x_train[:self.batch_size-1]
         self.batch_sizes = {
-            'Unlabeled': batch_size,
-            'Labeled': batch_size,
-            'Orthonorm': batch_size,
+            'Unlabeled': self.batch_size,
+            'Labeled': self.batch_size,
+            'Orthonorm': self.batch_size,
         }
 
-        input_shape = x.shape[1:]
+        input_shape = self.x_train.shape[1:]
 
         y_labeled_onehot = np.empty((0, self.params['n_clusters']))
 
@@ -82,19 +82,19 @@ class SpectralNetModel(object):
                                                  )
         self.clustering_algo = joblib.load(os.path.join(self.params['model_path'], 'spectral_net', 'clustering_aglo.sav'))
 
-        x_spectralnet = self.spectral_net.predict_unlabelled(x_train[:1])
-        x_spectralnet = self.spectral_net.predict_unlabelled(x_train)
+        # # x_spectralnet = self.spectral_net.predict_unlabelled(x_train[:1])
+        # x_spectralnet = self.spectral_net.predict_unlabelled(x_train)
         # kmeans_assignments = self.clustering_algo.predict_cluster_assignments(x_spectralnet)
-        # y_spectralnet = self.clustering_algo.predict(x_spectralnet)
-        # print_accuracy(kmeans_assignments, y, self.params['n_clusters'])
+        # # y_spectralnet = self.clustering_algo.predict(x_spectralnet)
+        # print_accuracy(kmeans_assignments, y_train, self.params['n_clusters'])
 
     def predict(self, X, feature_names):
         with graph.as_default():
             data = [X]
             embed_if_needed(data, self.params)
             x_embedded = data[0]
-            x = x_embedded
-            x_spectralnet = self.spectral_net.predict(x)
+            x = np.concatenate([self.x_train, x_embedded], axis=0)
+            x_spectralnet = self.spectral_net.predict_unlabelled(x[-self.batch_size:])
             y_pred = self.clustering_algo.predict(x_spectralnet)
 
             return y_pred[-X.shape[0]:]
@@ -107,5 +107,5 @@ if __name__ == '__main__':
     os.environ['GPU'] = "0"
     os.environ['GPU_MEMORY_FRACTION'] = "0"
     os.environ['DATA_SET'] = "mnist"
-    os.environ['BATCH_SIZE'] = "10"
+    os.environ['BATCH_SIZE'] = "100"
     d = SpectralNetModel()

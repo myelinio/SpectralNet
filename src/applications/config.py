@@ -96,7 +96,7 @@ def get_common_config(args):
             # a 'positive' pair by siamese net
 
             'siam_ne': 10,  # number of training epochs for siamese net
-            'spec_ne': 50,  # number of training epochs for spectral net
+            'spec_ne': 10,  # number of training epochs for spectral net
             'spec_ae': 400,
             'siam_lr': 1e-3,  # initial learning rate for siamese net
             'spec_lr': 1e-3,  # initial learning rate for spectral net

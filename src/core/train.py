@@ -65,7 +65,8 @@ def train_step(return_var, updates, x_unlabeled, inputs, y_true,
     return_vars_ = np.zeros(shape=(len(return_var)))
     # train batches_per_epoch batches
     for batch_num in range(0, batches_per_epoch):
-        feed_dict = {K.learning_phase(): 1}
+        # feed_dict = {K.learning_phase(): 1}
+        feed_dict = {}
 
         # feed corresponding input for each input_type
         for input_type, input_placeholder in inputs.items():
@@ -221,7 +222,7 @@ def predict_unlabelled(predict_var, x_unlabeled, inputs, batch_sizes):
                 raise Exception("Unrecognized feed name ['{}']".format(input_type))
 
         # evaluate the batch
-        ow = K.get_session().run(K.tf.get_default_graph().get_tensor_by_name("ortho_weights_update:0"), feed_dict=feed_dict)
+        # ow = K.get_session().run(K.tf.get_default_graph().get_tensor_by_name("ortho_weights_update:0"), feed_dict=feed_dict)
         y_pred_batch = np.asarray(K.get_session().run(predict_var, feed_dict=feed_dict))
         y_preds.append(y_pred_batch)
 
