@@ -18,6 +18,8 @@ from applications.spectralnet import run_net
 from core.data import load_spectral_data
 
 # Parse arguments
+from core.util import get_session
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=str, help='gpu number to use', default='')
 parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to use', default='1.0')
@@ -29,13 +31,6 @@ params = get_spectralnet_config(args)
 
 # Load data
 data = load_spectral_data(params['data_path'], args.dset)
-
-
-def get_session(gpu_fraction=0.333):
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction,
-                                allow_growth=False)
-    return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
-
 
 ktf.set_session(get_session(args.gpu_memory_fraction))
 

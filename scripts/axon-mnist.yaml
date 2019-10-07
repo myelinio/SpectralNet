@@ -77,7 +77,7 @@ spec:
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
-            value: "0.50"
+            value: "0.9"
           - name: DATA_SET
             value: mnist
 
@@ -224,10 +224,10 @@ spec:
       tasks:
         - resourceExecutor:
             task: DataPrep
-#        - resourceExecutor:
-#            task: DataPrepAutoEncoder
-#        - trainer:
-#            task: TrainAutoencoderModel
+        - resourceExecutor:
+            task: DataPrepAutoEncoder
+        - trainer:
+            task: TrainAutoencoderModel
         - resourceExecutor:
             task: DataPrepSiamese
         - trainer:

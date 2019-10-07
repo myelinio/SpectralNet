@@ -26,7 +26,7 @@ def orthonorm_op(x, epsilon=1e-7):
     # return ortho_weights
 
     x_2 = K.dot(K.transpose(x), x)
-    x_2 = tf.add(x_2, K.eye(K.int_shape(x)[1])*epsilon, name="pre_cholesky")
+    x_2 += K.eye(K.int_shape(x)[1])*epsilon
     L = tf.cholesky(x_2)
     ortho_weights = tf.transpose(tf.matrix_inverse(L)) * tf.sqrt(tf.cast(tf.shape(x)[0], dtype=K.floatx()))
     return ortho_weights
@@ -80,17 +80,18 @@ class MyOrtho(Layer):
         if training in {0, False}:
             return  K.dot(X, self.ortho_weights_store)
 
-        ortho_weights = orthonorm_op(X)
+
         # self.ortho_weights_store = orthonorm_op(X)
         # return K.dot(X, self.ortho_weights_store)
 
         def ortho_inference():
-            return K.dot(X, ortho_weights)
+            return K.dot(X, self.ortho_weights_store)
 
         def ortho_training():
-            return K.dot(X, self.ortho_weights_store)
-        ortho_weights_update = tf.assign(self.ortho_weights_store, ortho_weights, name='ortho_weights_update')
-        self.add_update(ortho_weights_update)
+            ortho_weights = orthonorm_op(X)
+            ortho_weights_update = tf.assign(self.ortho_weights_store, ortho_weights, name='ortho_weights_update')
+            self.add_update(ortho_weights_update)
+            return K.dot(X, ortho_weights)
 
         return K.in_train_phase(ortho_training,
                                 ortho_inference,

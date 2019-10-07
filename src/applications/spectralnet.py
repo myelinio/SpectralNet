@@ -60,7 +60,8 @@ def run_net(data, params, train=True):
         siamese_net = networks.SiameseNet(inputs, params['arch'], params.get('siam_reg'), y_true, siamese_model_path)
     else:
         siamese_net = None
-
+    if train:
+        K.set_learning_phase(1)
     # Define and train spectral net
     spectralnet_model_path = os.path.join(params['model_path'], 'spectral_net')
     spectral_net = networks.SpectralNet(inputs, params['arch'],
@@ -71,7 +72,6 @@ def run_net(data, params, train=True):
                                         siamese_net, True, x_train, len(x_train_labeled),
                                         )
     if train:
-        K.set_learning_phase(1)
         spectral_net.train(
             x_train_unlabeled, x_train_labeled, x_val_unlabeled,
             params['spec_lr'], params['spec_drop'], params['spec_patience'],

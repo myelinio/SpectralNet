@@ -347,3 +347,10 @@ def spectral_clustering(x, scale, n_nbrs=None, affinity='full', W=None):
     L = D - W
     Lambda, V = np.linalg.eigh(L)
     return (Lambda, V)
+
+
+def get_session(gpu_fraction=0.333):
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction,
+                                allow_growth=False)
+    return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+

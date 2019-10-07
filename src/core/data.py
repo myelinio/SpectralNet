@@ -333,8 +333,8 @@ def embed_data(x, params, dset):
         dset = 'reuters10k'
 
     json_path = 'pretrain_weights/ae_{}.json'.format(dset)
-    weights_path = 'pretrain_weights/ae_{}_weights.h5'.format(dset)
-    # weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
+    # weights_path = 'pretrain_weights/ae_{}_weights.h5'.format(dset)
+    weights_path = '{}/ae_{}_weights.h5'.format(params['ae_model_path'], dset)
 
     with open(json_path) as f:
         pt_ae = model_from_json(f.read())

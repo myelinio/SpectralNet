@@ -21,7 +21,7 @@ def get_spectralnet_config(args):
 
     ae_model_task = myelin.admin.task(task_name="TrainAutoencoderModel")
     print(ae_model_task)
-    params['ae_model_path'] = ae_model_task.model_path if ae_model_task else '/tmp/model/ae/'
+    params['ae_model_path'] = ae_model_task.model_path if ae_model_task else '/tmp/model/ae/'  # 'pretrain_weights/'
 
     data_task = myelin.admin.task(task_name="DataPrepSpectralNet")
     print(data_task)
@@ -63,7 +63,6 @@ def get_autoencoder_config(args):
 
 
 def get_common_config(args):
-
     data_path = myelin.admin.data_path(default_value='/tmp/data/')
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'
@@ -97,7 +96,7 @@ def get_common_config(args):
 
             'siam_ne': 10,  # number of training epochs for siamese net
             'spec_ne': 10,  # number of training epochs for spectral net
-            'spec_ae': 400,
+            'spec_ae': 10,
             'siam_lr': 1e-3,  # initial learning rate for siamese net
             'spec_lr': 1e-3,  # initial learning rate for spectral net
             'siam_patience': 10,  # early stopping patience for siamese net

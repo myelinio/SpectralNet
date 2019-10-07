@@ -8,6 +8,7 @@ from applications.config import get_siamese_config
 from core.data import build_siamese_data, load_base_data
 import os
 import h5py
+from core.util import get_session
 
 # PARSE ARGUMENTS
 parser = argparse.ArgumentParser()
@@ -24,12 +25,7 @@ data = build_siamese_data(params, base_data)
 
 if params.get('use_code_space'):
     import keras.backend.tensorflow_backend as ktf
-    import tensorflow as tf
 
-    def get_session(gpu_fraction=0.333):
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction,
-                                    allow_growth=False)
-        return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
     ktf.set_session(get_session(args.gpu_memory_fraction))
 
 data_path = os.path.join(params['data_path'], '%s_siamese.hdf5' % args.dset)

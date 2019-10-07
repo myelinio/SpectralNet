@@ -20,6 +20,7 @@ from core.data import build_siamese_data, load_spectral_data, decode_data, load_
 
 # PARSE ARGUMENTS
 from core.util import print_accuracy
+from keras import backend as K
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu', type=str, help='gpu number to use', default='')
@@ -64,7 +65,6 @@ if 'siamese' in params['affinity']:
 # x = np.concatenate([x_train, np.ones((10, 2))], axis=0)
 x = x_val[:100]
 y = y_val[:100]
-np.savetxt('spectralnet_input.txt', x)
 batch_sizes = {
     'Unlabeled': x.shape[0],
     'Labeled': x.shape[0],
@@ -73,7 +73,7 @@ batch_sizes = {
 
 
 def run_predict(params):
-    # ktf.set_learning_phase(0)
+    K.set_learning_phase(0)
     input_shape = x.shape[1:]
 
     y_labeled_onehot = np.empty((0, params['n_clusters']))

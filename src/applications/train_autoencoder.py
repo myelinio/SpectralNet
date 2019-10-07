@@ -13,6 +13,7 @@ from applications.config import get_autoencoder_config
 from core.data import load_spectral_data
 from core.networks import AutoEncoder
 import os
+from core.util import get_session
 
 # add directories in src/ to path
 # sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
@@ -26,12 +27,6 @@ args = parser.parse_args()
 params = get_autoencoder_config(args)
 
 data = load_spectral_data(params['data_path'], args.dset)
-
-
-def get_session(gpu_fraction=0.333):
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction,
-                                allow_growth=False)
-    return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
 
 def get_reconstruction_mse(x):
