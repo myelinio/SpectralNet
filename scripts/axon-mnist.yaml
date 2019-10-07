@@ -218,9 +218,9 @@ spec:
 
   sensors:
     - name: TrainModels
-      triggers:
-        - name: RestTrigger
-          type: Rest
+#      triggers:
+#        - name: RestTrigger
+#          type: Rest
       tasks:
         - resourceExecutor:
             task: DataPrep
