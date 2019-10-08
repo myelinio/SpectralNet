@@ -27,12 +27,10 @@ parser.add_argument('--dset', type=str, help='dataset to use', default='mnist')
 
 args = parser.parse_args()
 params = get_spectralnet_config(args)
-
+ktf.set_session(get_session(args.gpu_memory_fraction))
 
 # Load data
 data = load_spectral_data(params['data_path'], args.dset)
-
-ktf.set_session(get_session(args.gpu_memory_fraction))
 
 # Run training
 x_spectralnet, y_spectralnet = run_net(data, params)

@@ -23,8 +23,9 @@ parser.add_argument('--gpu', type=str, help='gpu number to use', default='')
 parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to use', default='1.0')
 parser.add_argument('--dset', type=str, help='dataset to use', default='mnist')
 args = parser.parse_args()
-
 params = get_autoencoder_config(args)
+
+K.set_session(get_session(args.gpu_memory_fraction))
 
 data = load_spectral_data(params['data_path'], args.dset)
 
@@ -33,9 +34,6 @@ def get_reconstruction_mse(x):
     x_embedded = ae.predict_embedding(x)
     x_recon = ae.predict_reconstruction(x_embedded)
     return np.mean(np.square(x - x_recon))
-
-
-K.set_session(get_session(args.gpu_memory_fraction))
 
 # RUN Train
 x_train = data['spectral']['train_and_test'][0]

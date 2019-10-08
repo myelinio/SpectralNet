@@ -22,11 +22,11 @@ parser.add_argument('--gpu', type=str, help='gpu number to use', default='')
 parser.add_argument('--gpu_memory_fraction', type=float, help='gpu percentage to use', default='1.0')
 parser.add_argument('--dset', type=str, help='dataset to use', default='mnist')
 args = parser.parse_args()
+ktf.set_session(get_session(args.gpu_memory_fraction))
 
 params = get_siamese_config(args)
 data = load_siamese_data(params['data_path'], args.dset)
 
-ktf.set_session(get_session(args.gpu_memory_fraction))
 
 # RUN Train
 run_net(data, params)

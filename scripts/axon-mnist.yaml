@@ -15,7 +15,7 @@ spec:
 
   volumeClaimTemplate:
     metadata:
-      name: axon-store34
+      name: axon-store35
     spec:
       storageClassName: nfs
       accessModes: ["ReadWriteMany"]
@@ -26,16 +26,16 @@ spec:
   tasks:
     - name: DataPrep
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:3fa25ba
-#        imageBuild:
-#          repositoryName: data-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.data-preprocess
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:7f7b851
+        imageBuild:
+          repositoryName: data-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.data-preprocess
         env:
-          - name: LD_LIBRARY_PATH
-            value: /usr/local/cuda/lib64/:/usr/local/cuda-10.0/compat/:/usr/local/nvidia/lib64:/usr/local/nvidia/bin
+#          - name: LD_LIBRARY_PATH
+#            value: /usr/local/cuda/lib64/:/usr/local/cuda/lib64/:/usr/local/nvidia/bin
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
@@ -45,16 +45,16 @@ spec:
 
     - name: DataPrepAutoEncoder
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:3fa25ba
-#        imageBuild:
-#          repositoryName: autoencoder-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.ae-preprocess
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:7f7b851
+        imageBuild:
+          repositoryName: autoencoder-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.ae-preprocess
         env:
-          - name: LD_LIBRARY_PATH
-            value: /usr/local/cuda/lib64/:/usr/local/cuda-10.0/compat/:/usr/local/nvidia/lib64:/usr/local/nvidia/bin
+#          - name: LD_LIBRARY_PATH
+#            value: /usr/local/cuda/lib64/:/usr/local/cuda/lib64/:/usr/local/nvidia/bin
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
@@ -64,16 +64,16 @@ spec:
 
     - name: TrainAutoencoderModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:3fa25ba
-#        imageBuild:
-#          repositoryName: autoencoder-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.ae-train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:7f7b851
+        imageBuild:
+          repositoryName: autoencoder-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.ae-train-gpu
         env:
-          - name: LD_LIBRARY_PATH
-            value: /usr/local/cuda/lib64/:/usr/local/cuda-10.0/compat/:/usr/local/nvidia/lib64:/usr/local/nvidia/bin
+#          - name: LD_LIBRARY_PATH
+#            value: /usr/local/cuda/lib64/:/usr/local/cuda/lib64/:/usr/local/nvidia/bin
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
@@ -89,16 +89,16 @@ spec:
 
     - name: DataPrepSiamese
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:3fa25ba
-#        imageBuild:
-#          repositoryName: siamese-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.siamese-preprocess
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:7f7b851
+        imageBuild:
+          repositoryName: siamese-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.siamese-preprocess
         env:
-          - name: LD_LIBRARY_PATH
-            value: /usr/local/cuda/lib64/:/usr/local/cuda-10.0/compat/:/usr/local/nvidia/lib64:/usr/local/nvidia/bin
+#          - name: LD_LIBRARY_PATH
+#            value: /usr/local/cuda/lib64/:/usr/local/cuda/lib64/:/usr/local/nvidia/bin
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
@@ -116,16 +116,16 @@ spec:
 
     - name: TrainSiameseModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:3fa25ba
-#        imageBuild:
-#          repositoryName: siamese-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.siamese-train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:7f7b851
+        imageBuild:
+          repositoryName: siamese-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.siamese-train-gpu
         env:
-          - name: LD_LIBRARY_PATH
-            value: /usr/local/cuda/lib64/:/usr/local/cuda-10.0/compat/:/usr/local/nvidia/lib64:/usr/local/nvidia/bin
+#          - name: LD_LIBRARY_PATH
+#            value: /usr/local/cuda/lib64/:/usr/local/cuda/lib64/:/usr/local/nvidia/bin
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
@@ -141,16 +141,16 @@ spec:
 
     - name: DataPrepSpectralNet
       container:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:3fa25ba
-#        imageBuild:
-#          repositoryName: spectral-net-preprocess
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.spectral-preprocess
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:7f7b851
+        imageBuild:
+          repositoryName: spectral-net-preprocess
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.spectral-preprocess
         env:
-          - name: LD_LIBRARY_PATH
-            value: /usr/local/cuda/lib64/:/usr/local/cuda-10.0/compat/:/usr/local/nvidia/lib64:/usr/local/nvidia/bin
+#          - name: LD_LIBRARY_PATH
+#            value: /usr/local/cuda/lib64/:/usr/local/cuda/lib64/:/usr/local/nvidia/bin
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
@@ -166,16 +166,16 @@ spec:
 
     - name: TrainSpectralNetModel
       train:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:3fa25ba
-#        imageBuild:
-#          repositoryName: spectral-net-train-gpu
-#          artifact: spectral-net-source
-#          buildLocation: /src
-#          dockerfile:
-#            path: scripts/Dockerfile.spectral-train-gpu
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:7f7b851
+        imageBuild:
+          repositoryName: spectral-net-train-gpu
+          artifact: spectral-net-source
+          buildLocation: /src
+          dockerfile:
+            path: scripts/Dockerfile.spectral-train-gpu
         env:
-          - name: LD_LIBRARY_PATH
-            value: /usr/local/cuda/lib64/:/usr/local/cuda-10.0/compat/:/usr/local/nvidia/lib64:/usr/local/nvidia/bin
+#          - name: LD_LIBRARY_PATH
+#            value: /usr/local/cuda/lib64/:/usr/local/cuda/lib64/:/usr/local/nvidia/bin
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
@@ -192,16 +192,16 @@ spec:
 
     - name: DeploySpectralNetModel
       deploy:
-        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:3fa25ba
-#        imageBuild:
-#          repositoryName: spectral-net-deploy
-#          artifact: spectral-net-source
-#          buildLocation: /src/src
-#          s2i:
-#            builderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-runtime-py3:v0.1.6
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-deploy:3fa25ba
+        imageBuild:
+          repositoryName: spectral-net-deploy
+          artifact: spectral-net-source
+          buildLocation: /src/src
+          s2i:
+            builderImage: docker.io/myelinio/myelin-deployer-s2i-cuda10-runtime-py3:v0.1.6
         env:
           - name: LD_LIBRARY_PATH
-            value: /usr/local/cuda/lib64/:/usr/local/cuda-10.0/compat/:/usr/local/nvidia/lib64:/usr/local/nvidia/bin
+            value: /usr/local/cuda/lib64/:/usr/local/cuda-10.0/compat/:/usr/local/cuda/lib64/:/usr/local/nvidia/bin
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION

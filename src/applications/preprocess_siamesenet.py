@@ -9,6 +9,7 @@ from core.data import build_siamese_data, load_base_data
 import os
 import h5py
 from core.util import get_session
+import keras.backend.tensorflow_backend as ktf
 
 # PARSE ARGUMENTS
 parser = argparse.ArgumentParser()
@@ -18,15 +19,13 @@ parser.add_argument('--dset', type=str, help='dataset to use', default='mnist')
 args = parser.parse_args()
 
 params = get_siamese_config(args)
+if params.get('use_code_space'):
+    ktf.set_session(get_session(args.gpu_memory_fraction))
 
 base_data = load_base_data(params, args.dset)
 # LOAD DATA
 data = build_siamese_data(params, base_data)
 
-if params.get('use_code_space'):
-    import keras.backend.tensorflow_backend as ktf
-
-    ktf.set_session(get_session(args.gpu_memory_fraction))
 
 data_path = os.path.join(params['data_path'], '%s_siamese.hdf5' % args.dset)
 if not os.path.exists(params['data_path']):
