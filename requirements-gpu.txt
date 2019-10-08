@@ -1,7 +1,6 @@
 scikit-learn
 keras==2.2.4
 munkres
-annoy
 h5py
 numpy
 modeldb
