@@ -11,15 +11,9 @@ from keras import backend as K
 from applications.config import get_spectralnet_config
 from core import networks
 from core.data import embed_if_needed, load_spectral_data
-from core.util import print_accuracy
+from core.util import print_accuracy, get_session
 
 Args = collections.namedtuple('Args', 'gpu gpu_memory_fraction dset batch_size')
-
-
-def get_session(gpu_fraction=0.333):
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction,
-                                allow_growth=False)
-    return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
 
 class SpectralNetModel(object):

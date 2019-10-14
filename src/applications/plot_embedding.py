@@ -1,4 +1,3 @@
-
 print(__doc__)
 from time import time
 
@@ -7,6 +6,9 @@ import matplotlib.pyplot as plt
 from matplotlib import offsetbox
 from sklearn import (manifold, datasets, decomposition, ensemble,
                      discriminant_analysis, random_projection, neighbors)
+from bokeh.models import Label, ColumnDataSource
+from bokeh.models.glyphs import Text
+from bokeh.palettes import brewer
 
 n_class = 10
 digits = datasets.load_digits(n_class=n_class)
@@ -47,10 +49,32 @@ def plot_embedding(X, y, title=None):
             imagebox = offsetbox.AnnotationBbox(
                 offsetbox.OffsetImage(images[y[i]], cmap=plt.cm.gray_r),
                 X[i])
-            ax.add_artist(imagebox)
     plt.xticks([]), plt.yticks([])
     if title is not None:
         plt.title(title)
+
+
+def plot_embedding_bokeh(X, y, p):
+    x_min, x_max = np.min(X, 0), np.max(X, 0)
+    X = (X - x_min) / (x_max - x_min)
+    colors = brewer["Spectral"][len(unique_classes)]
+    for c in unique_classes:
+        f = y == c
+        source = ColumnDataSource(dict(x=X[:, 0][f], y=X[:, 1][f], text=y[f]))
+        glyph = Text(x="x", y="y", text="text", angle=0.3, text_color=colors[c])
+        p.add_glyph(source, glyph)
+
+def plot_source(X, y, p):
+    x_min, x_max = np.min(X, 0), np.max(X, 0)
+    X = (X - x_min) / (x_max - x_min)
+    colors = brewer["Spectral"][len(unique_classes)]
+    for c in unique_classes:
+        f = y == c
+        source = ColumnDataSource(dict(x=X[:, 0][f], y=X[:, 1][f], text=y[f]))
+        glyph = Text(x="x", y="y", text="text", angle=0.3, text_color=colors[c])
+        p.add_glyph(source, glyph)
+
+
 if __name__ == '__main__':
 
     digits = datasets.load_digits(n_class=6)
@@ -58,7 +82,6 @@ if __name__ == '__main__':
     y = digits.target
     n_samples, n_features = X.shape
     n_neighbors = 30
-
 
     # ----------------------------------------------------------------------
     # Plot images of the digits
@@ -75,7 +98,6 @@ if __name__ == '__main__':
     plt.yticks([])
     plt.title('A selection from the 64-dimensional digits dataset')
 
-
     # ----------------------------------------------------------------------
     # Random 2D projection using a random unitary matrix
     print("Computing random projection")
@@ -83,8 +105,7 @@ if __name__ == '__main__':
     X_projected = rp.fit_transform(X)
     plot_embedding(X_projected, "Random Projection of the digits")
 
-
-    #----------------------------------------------------------------------
+    # ----------------------------------------------------------------------
     # Projection on to the first 2 principal components
 
     print("Computing PCA projection")
@@ -106,7 +127,6 @@ if __name__ == '__main__':
                    "Linear Discriminant projection of the digits (time %.2fs)" %
                    (time() - t0))
 
-
     # ----------------------------------------------------------------------
     # Isomap projection of the digits dataset
     print("Computing Isomap projection")
@@ -116,7 +136,6 @@ if __name__ == '__main__':
     plot_embedding(X_iso,
                    "Isomap projection of the digits (time %.2fs)" %
                    (time() - t0))
-
 
     # ----------------------------------------------------------------------
     # Locally linear embedding of the digits dataset
@@ -130,7 +149,6 @@ if __name__ == '__main__':
                    "Locally Linear Embedding of the digits (time %.2fs)" %
                    (time() - t0))
 
-
     # ----------------------------------------------------------------------
     # Modified Locally linear embedding of the digits dataset
     print("Computing modified LLE embedding")
@@ -143,7 +161,6 @@ if __name__ == '__main__':
                    "Modified Locally Linear Embedding of the digits (time %.2fs)" %
                    (time() - t0))
 
-
     # ----------------------------------------------------------------------
     # HLLE embedding of the digits dataset
     print("Computing Hessian LLE embedding")
@@ -155,7 +172,6 @@ if __name__ == '__main__':
     plot_embedding(X_hlle,
                    "Hessian Locally Linear Embedding of the digits (time %.2fs)" %
                    (time() - t0))
-
 
     # ----------------------------------------------------------------------
     # LTSA embedding of the digits dataset

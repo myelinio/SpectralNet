@@ -26,7 +26,7 @@ spec:
   tasks:
     - name: DataPrep
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:7f7b851
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/data-preprocess:9a5289a
         imageBuild:
           repositoryName: data-preprocess
           artifact: spectral-net-source
@@ -45,7 +45,7 @@ spec:
 
     - name: DataPrepAutoEncoder
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:7f7b851
+        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-preprocess:9a5289a
         imageBuild:
           repositoryName: autoencoder-preprocess
           artifact: spectral-net-source
@@ -53,8 +53,8 @@ spec:
           dockerfile:
             path: scripts/Dockerfile.ae-preprocess
         env:
-#          - name: LD_LIBRARY_PATH
-#            value: /usr/local/cuda/lib64/:/usr/local/cuda/lib64/:/usr/local/nvidia/bin
+          - name: LD_LIBRARY_PATH
+            value: /usr/local/cuda/lib64/:/usr/local/cuda/lib64/:/usr/local/nvidia/bin
           - name: GPU
             value: "0"
           - name: GPU_MEMORY_FRACTION
@@ -64,7 +64,7 @@ spec:
 
     - name: TrainAutoencoderModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:7f7b851
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/autoencoder-train-gpu:9a5289a
         imageBuild:
           repositoryName: autoencoder-train-gpu
           artifact: spectral-net-source
@@ -89,7 +89,7 @@ spec:
 
     - name: DataPrepSiamese
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:7f7b851
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-preprocess:9a5289a
         imageBuild:
           repositoryName: siamese-preprocess
           artifact: spectral-net-source
@@ -116,7 +116,7 @@ spec:
 
     - name: TrainSiameseModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:7f7b851
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/siamese-train-gpu:9a5289a
         imageBuild:
           repositoryName: siamese-train-gpu
           artifact: spectral-net-source
@@ -141,7 +141,7 @@ spec:
 
     - name: DataPrepSpectralNet
       container:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:7f7b851
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-preprocess:9a5289a
         imageBuild:
           repositoryName: spectral-net-preprocess
           artifact: spectral-net-source
@@ -166,7 +166,7 @@ spec:
 
     - name: TrainSpectralNetModel
       train:
-#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:7f7b851
+#        image: registry-intl.eu-central-1.aliyuncs.com/myelinproj/spectral-net-train-gpu:9a5289a
         imageBuild:
           repositoryName: spectral-net-train-gpu
           artifact: spectral-net-source

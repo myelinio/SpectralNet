@@ -16,10 +16,10 @@ from sklearn.externals import joblib
 from applications.config import get_spectralnet_config, get_siamese_config
 from core import networks, costs
 from core.data import build_siamese_data, load_spectral_data, decode_data, load_base_data, build_spectral_data, \
-    load_data, load_siamese_data
+    load_data, load_siamese_data, embed_if_needed
 
 # PARSE ARGUMENTS
-from core.util import print_accuracy
+from core.util import print_accuracy, get_session
 from keras import backend as K
 
 parser = argparse.ArgumentParser()
@@ -38,12 +38,6 @@ data = load_spectral_data(params['data_path'], args.dset)
 # params_noencode['use_code_space'] = False
 # # base_data = load_data(params_noencode)
 # origin_data = build_spectral_data(params_noencode, base_data)
-
-
-def get_session(gpu_fraction=0.333):
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction,
-                                allow_growth=False)
-    return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
 
 ktf.set_session(get_session(args.gpu_memory_fraction))
@@ -84,17 +78,21 @@ def run_predict(params):
         'Labeled': Input(shape=input_shape, name='LabeledInput'),
         'Orthonorm': Input(shape=input_shape, name='OrthonormInput'),
     }
+    y_true = tf.placeholder(tf.float32, shape=(None, params['n_clusters']), name='y_true')
 
     # Load Siamese network
     if params['affinity'] == 'siamese':
-        siamese_net = networks.SiameseNet(inputs, params['arch'], params.get('siam_reg'), None, params['siamese_model_path'])
+        siamese_input_shape = [params['n_clusters']]
+        siamese_inputs = {
+            'Unlabeled': Input(shape=siamese_input_shape, name='UnlabeledInput'),
+            'Labeled': Input(shape=siamese_input_shape, name='LabeledInput'),
+        }
+        siamese_net = networks.SiameseNet(siamese_inputs, params['arch'], params.get('siam_reg'), y_true, params['siamese_model_path'])
 
     else:
         siamese_net = None
 
     # Load Spectral net
-    y_true = tf.placeholder(tf.float32, shape=(None, params['n_clusters']), name='y_true')
-
     spectralnet_model_path = os.path.join(params['model_path'], 'spectral_net')
     spectral_net = networks.SpectralNet(inputs, params['arch'],
                                         params.get('spec_reg'),
